@@ -7,7 +7,7 @@
                               -------------------
         begin                : 2014-03-25
         copyright            : (C) 2014 by tschmitz HSR
-        email                : tschmitz@hsr.ch
+        email                : tschmitz at hsr dot ch
  ***************************************************************************/
 
 /***************************************************************************
@@ -28,11 +28,11 @@ import resources_rc
 # Import the code for the dialog
 from connectordialog import ConnectorDialog
 import os.path
-import distutils.core
-import subprocess
+import distutils
 
 import urllib2, base64
 import json
+import traceback
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -51,6 +51,10 @@ class Connector:
     def questionYesNo(self, text):
         return QMessageBox.question(self.dialog, _translate("Connector", "Question", None), text, buttons = QMessageBox.Yes|QMessageBox.No);
     
+    def inputBox(self, title, text):
+        outputText, ok = QInputDialog.getText(self.dialog, _translate("Connector", title, None), _translate("Connector", text, None))
+        if ok:
+            return outputText
 
     def __init__(self, iface):
         # Save reference to the QGIS interface
@@ -58,14 +62,15 @@ class Connector:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
+        self.qgis_bin_dir = os.getcwd()
         try:
             distutils.dir_util.remove_tree(self.plugin_dir+"/tmp")
         except:
-            pass
+            traceback.print_exc()
         try:
             os.makedirs(self.plugin_dir+"/tmp")
         except:
-            raise
+            traceback.print_exc()
         
         locale = QSettings().value("locale/userLocale")[0:2]
         localePath = os.path.join(self.plugin_dir, 'i18n', 'connector_{}.qm'.format(locale))
@@ -168,6 +173,19 @@ class Connector:
         
         self.loadTreeViewFor(url, jsonContent)
     
+    def isFeatureLayer(self, item):
+        serviceRequest = self.getRequestFor(item.toolTip(0)+"?f=json")
+        jsonContent = json.loads(urllib2.urlopen(serviceRequest).read())
+        
+        for layer in jsonContent["layers"]:
+            layerRequest = self.getRequestFor(item.toolTip(0)+"/"+str(layer["id"])+"/"+"?f=json")
+            layerJSON = json.loads(urllib2.urlopen(layerRequest).read())
+            
+            if layerJSON['type'] == "Feature Layer":
+                return True
+            
+        return False
+    
     def loadMapServerLayers(self, item):
         serviceRequest = self.getRequestFor(item.toolTip(0)+"?f=json")
         jsonContent = json.loads(urllib2.urlopen(serviceRequest).read())
@@ -183,29 +201,32 @@ class Connector:
                 try:
                     XMLWriter.latestwkid = jsonContent["spatialReference"]["wkid"]
                 except:
-                    XMLWriter.latestwkid = 900913
+                    XMLWriter.latestwkid = self.inputBox("Input SRID", "Input SRID")
         try:
             XMLWriter.originX = jsonContent["tileInfo"]["origin"]["x"]
         except:
-            pass # using default defined in XMLWriter
+            if self.isFeatureLayer(item):
+                self.loadFeatureLayers(item)
+                return
+            XMLWriter.originX = self.inputBox("Input the X-Extend", "Input the X-Extend")
         try:
             XMLWriter.originY = jsonContent["tileInfo"]["origin"]["y"]
         except:
-            pass # using default defined in XMLWriter
+            XMLWriter.originY = self.inputBox("Input the Y-Extend", "Input the Y-Extend")
         try:
             XMLWriter.blockX = jsonContent["tileInfo"]["cols"]
         except:
-            pass # using default defined in XMLWriter
+            XMLWriter.blockX = self.inputBox("Image width in pixels", "Image width in pixels")
         try:
             XMLWriter.blockY = jsonContent["tileInfo"]["rows"]
         except:
-            pass # using default defined in XMLWriter
+            XMLWriter.blockY = self.inputBox("Image height in pixels", "Image height in pixels")
         try:
             for layers in jsonContent["tileInfo"]["lods"]:
                 anz = layers["level"]
             XMLWriter.anzZooms = anz
         except:
-            pass # using default defined in XMLWriter
+            XMLWriter.anzZooms = self.inputBox("Number of Zoom levels", "Number of Zoom levels")
         with open(self.plugin_dir+"/tmp/"+item.toolTip(1)+".xml", "w") as tmpFile:
             tmpFile.write(XMLWriter.writeFile())
         
@@ -222,15 +243,12 @@ class Connector:
             inputFile = self.plugin_dir+"/tmp/"+item.toolTip(1)+"-QGIS-"+identi+".json"
             outputFile= self.plugin_dir+"/tmp/"+item.toolTip(1)+"-"+identi+".json"
             
-            self.warning(inputFile)
-            self.warning(outputFile)
-            
-            reqURL = item.toolTip(0)+"/"+str(identi)+"/query?where=objectid+%3D+objectid&f=json"
+            reqURL = item.toolTip(0)+"/"+str(identi)+"/query?where=objectid+%3D+objectid&outfields=*&f=json"
             with open(inputFile, "w") as tmpfile:
                 tmpfile.write(urllib2.urlopen(self.getRequestFor(reqURL)).read())
             
-            cmands = u"ogr2ogr -f GeoJSON "+inputFile+u" "+outputFile+u" OGRGeoJSON –gt 1000"
-            os.popen(cmands.encode("utf-8"))
+            cmands = "ogr2ogr -f GeoJSON "+outputFile+" "+inputFile+" OGRGeoJSON -gt 1000"
+            os.popen(cmands.encode("utf-8")).read()
             
             self.iface.addVectorLayer(outputFile, item.toolTip(1)+"-"+name, "ogr")
             
