@@ -28,7 +28,7 @@ import resources_rc
 # Import the code for the dialog
 from connectordialog import ConnectorDialog
 import os.path
-import distutils
+import distutils.dir_util
 
 import urllib2, base64
 import json
@@ -66,11 +66,11 @@ class Connector:
         try:
             distutils.dir_util.remove_tree(self.plugin_dir+"/tmp")
         except:
-            traceback.print_exc()
+            print traceback.format_exc()
         try:
             os.makedirs(self.plugin_dir+"/tmp")
         except:
-            traceback.print_exc()
+            print traceback.format_exc()
         
         locale = QSettings().value("locale/userLocale")[0:2]
         localePath = os.path.join(self.plugin_dir, 'i18n', 'connector_{}.qm'.format(locale))
