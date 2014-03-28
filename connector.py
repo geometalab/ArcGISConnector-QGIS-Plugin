@@ -256,9 +256,9 @@ class Connector:
 	def loadLayer(self):
 		item = self.dialog.treeView.currentItem()
 		if not item:
-			return self.warning("Nothing selected")
+			return self.warning(_translate("Connector", "Nothing selected", None))
 		if not item.toolTip(0) or item.toolTip(0)=="":
-			return self.warning("Select a Service")
+			return self.warning(_translate("Connector", "Select a Service", None))
 		
 		if item.toolTip(2) == "MapServer":
 			self.loadMapServerLayers(item)
