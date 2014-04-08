@@ -23,6 +23,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
+from PyQt4.QtNetwork import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
@@ -30,8 +31,10 @@ from connectordialog import ConnectorDialog
 import os.path
 import distutils.dir_util
 
-import urllib2, base64
+import base64
+import urllib
 import json
+import requests
 import traceback
 
 try:
@@ -98,7 +101,6 @@ class Connector:
 		self.dialog.connect(self.dialog.cancelButton, SIGNAL("clicked()"), self.dialog.close)
 
 		self.dialog.password.setEchoMode(QLineEdit.Password);
-		
 
 		# Add toolbar button and menu item
 		self.iface.addToolBarIcon(self.action)
@@ -116,32 +118,44 @@ class Connector:
 		# Run the dialog event loop
 		self.dialog.exec_()
 	
-	def getRequestFor(self, url):
-		request = urllib2.Request(url)
-		base64string = base64.encodestring('%s:%s' % (self.dialog.username.text(), self.dialog.password.text())).replace('\n', '')
-		request.add_header("Authorization", "Basic %s" % base64string)
-		return request
+	
+	def requestFor(self, url):
+		request = requests.get(url, auth=(self.dialog.username.text(), self.dialog.password.text()))
+		if "www-authenticate" in request.headers:
+			self.lastAuthMethod = "Basic"
+			if "NTLM, Negotiate" in request.headers["www-authenticate"]:
+				self.lastAuthMethod = "NTLM"
+				from requests_ntlm import HttpNtlmAuth
+				request = requests.get(url, auth=HttpNtlmAuth(self.dialog.username.text(), self.dialog.password.text()))
+		else:
+			self.lastAuthMethod = None
+			
+		if not request.status_code == 200:
+			self.warning(request.text)
+			return False
+		return request.text
 	
 	def populateFolder(self, base, jsonContent, parentItem):
 		
-		for folder in jsonContent["folders"]:
-			newBase = base+"/"+folder
-			jsonText = urllib2.urlopen(self.getRequestFor(newBase+"?f=json")).read()
-			newJsonContent = json.loads(jsonText)
-			
-			baseItem = QTreeWidgetItem()
-			baseItem.setText(0, folder)
-			parentItem.addChild(baseItem)
-			self.populateFolder(newBase, newJsonContent, baseItem)
-		
-		for service in jsonContent["services"]:
-			name = service["name"].split("/")[-1]
-			baseItem = QTreeWidgetItem()
-			baseItem.setToolTip(0, base+"/"+name+"/"+service["type"])
-			baseItem.setToolTip(1, name)
-			baseItem.setToolTip(2, service["type"])
-			baseItem.setText(0, name+" ("+service["type"]+")")
-			parentItem.addChild(baseItem)
+		if jsonContent.has_key("folders"):
+			for folder in jsonContent["folders"]:
+				newBase = base+"/"+folder
+				jsonText = self.requestFor(newBase+"?f=json")
+				newJsonContent = json.loads(jsonText)
+				
+				baseItem = QTreeWidgetItem()
+				baseItem.setText(0, folder)
+				parentItem.addChild(baseItem)
+				self.populateFolder(newBase, newJsonContent, baseItem)
+		if jsonContent.has_key("services"):
+			for service in jsonContent["services"]:
+				name = service["name"].split("/")[-1]
+				baseItem = QTreeWidgetItem()
+				baseItem.setToolTip(0, base+"/"+name+"/"+service["type"])
+				baseItem.setToolTip(1, name)
+				baseItem.setToolTip(2, service["type"])
+				baseItem.setText(0, name+" ("+service["type"]+")")
+				parentItem.addChild(baseItem)
 			
 	
 	def loadTreeViewFor(self, base, jsonContent):
@@ -158,14 +172,15 @@ class Connector:
 		if serviceURL == "":
 			return
 		
-		url = self.dialog.protocol.currentText()+self.dialog.serviceURL.text()
+		url = self.dialog.serviceURL.text()
 		urlJSON = url + "?f=json"
-		request = self.getRequestFor(urlJSON)
 		
 		try:
-			jsonText = urllib2.urlopen(request).read()
-		except:
-			return self.warning(_translate("Connector", "Url not found.", None))
+			jsonText = self.requestFor(urlJSON)#urllib2.urlopen(request).read()
+			if not jsonText:
+				return
+		except Exception as e:
+			return self.warning(_translate("Connector", "Url not found.", None) + " \nError: " + e.message)
 		try:
 			jsonContent = json.loads(jsonText)
 		except:
@@ -174,12 +189,10 @@ class Connector:
 		self.loadTreeViewFor(url, jsonContent)
 	
 	def isFeatureLayer(self, item):
-		serviceRequest = self.getRequestFor(item.toolTip(0)+"?f=json")
-		jsonContent = json.loads(urllib2.urlopen(serviceRequest).read())
+		jsonContent = json.loads(self.requestFor(item.toolTip(0)+"?f=json"))
 		
 		for layer in jsonContent["layers"]:
-			layerRequest = self.getRequestFor(item.toolTip(0)+"/"+str(layer["id"])+"/"+"?f=json")
-			layerJSON = json.loads(urllib2.urlopen(layerRequest).read())
+			layerJSON = json.loads(self.requestFor(item.toolTip(0)+"/"+str(layer["id"])+"/"+"?f=json"))
 			
 			if layerJSON['type'] == "Feature Layer":
 				return True
@@ -187,11 +200,21 @@ class Connector:
 		return False
 	
 	def loadMapServerLayers(self, item):
-		serviceRequest = self.getRequestFor(item.toolTip(0)+"?f=json")
-		jsonContent = json.loads(urllib2.urlopen(serviceRequest).read())
+		jsonContent = json.loads(self.requestFor(item.toolTip(0)+"?f=json"))
+		
+		#testURL = item.toolTip(0)+"?f=json"
 		
 		import XMLWriter
-		XMLWriter.url = item.toolTip(0)+"/tile/${z}/${y}/${x}"
+		
+		reqURL = item.toolTip(0)+"/tile/${z}/${y}/${x}"
+		
+		source = QUrl(reqURL)
+		source.setUserName(self.dialog.username.text())
+		source.setPassword(self.dialog.password.text())
+		
+		XMLWriter.url = source.toString(options=QUrl.None)
+		
+		#print testURL
 		try:
 			XMLWriter.latestwkid = jsonContent["tileInfo"]["spatialReference"]["latestWkid"]
 		except:
@@ -230,28 +253,54 @@ class Connector:
 		with open(self.plugin_dir+"/tmp/"+item.toolTip(1)+".xml", "w") as tmpFile:
 			tmpFile.write(XMLWriter.writeFile())
 		
+		
+		
 		self.iface.addRasterLayer(self.plugin_dir+"/tmp/"+item.toolTip(1)+".xml", item.toolTip(1))
+		#self.iface.addRasterLayer(testURL, item.toolTip(1), "gdal")
 	
 	def loadFeatureLayers(self, item):
-		serviceRequest = self.getRequestFor(item.toolTip(0)+"?f=json")
-		jsonContent = json.loads(urllib2.urlopen(serviceRequest).read())
+		jsonContent = json.loads(self.requestFor(item.toolTip(0)+"?f=json"))
+		if jsonContent.has_key("layers"):
+			for layer in jsonContent["layers"]:
+				identi = str(layer["id"])
+				name = layer["name"]
+				
+				
+				reqURL = item.toolTip(0)+"/"+str(identi)+"/query?where=objectid+%3D+objectid&outfields=*&f=json"
+				
+				source = QUrl(reqURL)
+				source.setUserName(self.dialog.username.text())
+				source.setPassword(self.dialog.password.text())
+				
+				url = source.toString(options=QUrl.None)
+				
+				self.iface.addVectorLayer(url, item.toolTip(1)+" / "+name, "ogr")
+				
+				#self.loadImageryFor(item.toolTip(0)+"/"+str(identi)+"/", name)
+			
+	
+	def loadImageryFor(self, layerURL, layerName):
+		'''
+		Unfinished implementation
+		'''
+		reqURL = layerURL + "?f=json"
+		jsonContent = json.loads(self.requestFor(reqURL))
+		infos = None
+		try:
+			infos = jsonContent["drawingInfo"]["renderer"]["uniqueValueInfos"]
+		except KeyError:
+			return
 		
-		for layer in jsonContent["layers"]:
-			identi = str(layer["id"])
-			name = layer["name"]
+		for info in infos:
+			name = str(info["label"])
+			imageURL = layerURL + "images/"+ str(info["symbol"]["url"])
 			
-			inputFile = self.plugin_dir+"/tmp/"+item.toolTip(1)+"-QGIS-"+identi+".json"
-			outputFile= self.plugin_dir+"/tmp/"+item.toolTip(1)+"-"+identi+".json"
+			os.makedirs(self.plugin_dir+"/tmp/"+layerName)
+			with open(self.plugin_dir+"/tmp/"+layerName+"/"+name+".png", "w") as imageFile:
+				imageFile.write(self.requestFor(imageURL).decode("base64"))
 			
-			reqURL = item.toolTip(0)+"/"+str(identi)+"/query?where=objectid+%3D+objectid&outfields=*&f=json"
-			with open(inputFile, "w") as tmpfile:
-				tmpfile.write(urllib2.urlopen(self.getRequestFor(reqURL)).read())
-			
-			cmands = "ogr2ogr -f GeoJSON "+outputFile+" "+inputFile+" OGRGeoJSON -gt 1000"
-			os.popen(cmands.encode("utf-8")).read()
-			
-			self.iface.addVectorLayer(outputFile, item.toolTip(1)+"-"+name, "ogr")
-			
+		
+		return
 	
 	def loadLayer(self):
 		item = self.dialog.treeView.currentItem()

@@ -25,22 +25,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="serviceURL"/>
-       </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="protocol">
-         <item>
-          <property name="text">
-           <string>http://</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>https://</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="QLineEdit" name="serviceURL"/>
        </item>
       </layout>
      </item>
@@ -144,7 +130,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>protocol</tabstop>
   <tabstop>serviceURL</tabstop>
   <tabstop>username</tabstop>
   <tabstop>password</tabstop>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_connector.ui'
 #
-# Created: Wed Mar 26 15:07:40 2014
+# Created: Tue Apr 08 10:32:45 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,12 +38,7 @@ class Ui_Connector(object):
         self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 1)
         self.serviceURL = QtGui.QLineEdit(Connector)
         self.serviceURL.setObjectName(_fromUtf8("serviceURL"))
-        self.gridLayout_2.addWidget(self.serviceURL, 0, 2, 1, 1)
-        self.protocol = QtGui.QComboBox(Connector)
-        self.protocol.setObjectName(_fromUtf8("protocol"))
-        self.protocol.addItem(_fromUtf8(""))
-        self.protocol.addItem(_fromUtf8(""))
-        self.gridLayout_2.addWidget(self.protocol, 0, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.serviceURL, 0, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout_2)
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
@@ -91,7 +86,6 @@ class Ui_Connector(object):
 
         self.retranslateUi(Connector)
         QtCore.QMetaObject.connectSlotsByName(Connector)
-        Connector.setTabOrder(self.protocol, self.serviceURL)
         Connector.setTabOrder(self.serviceURL, self.username)
         Connector.setTabOrder(self.username, self.password)
         Connector.setTabOrder(self.password, self.loadServices)
@@ -102,8 +96,6 @@ class Ui_Connector(object):
     def retranslateUi(self, Connector):
         Connector.setWindowTitle(_translate("Connector", "Connector", None))
         self.label_3.setText(_translate("Connector", "REST Service URL:", None))
-        self.protocol.setItemText(0, _translate("Connector", "http://", None))
-        self.protocol.setItemText(1, _translate("Connector", "https://", None))
         self.label_2.setText(_translate("Connector", "Password:", None))
         self.label.setText(_translate("Connector", "Username:", None))
         self.loadServices.setText(_translate("Connector", "Load Services", None))
