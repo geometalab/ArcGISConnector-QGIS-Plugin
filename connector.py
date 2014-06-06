@@ -28,6 +28,7 @@ from PyQt4.QtNetwork import *
 import resources_rc
 # Import the code for the dialog
 from connectordialog import ConnectorDialog
+from inputdialog import InputDialog
 import os.path
 import distutils.dir_util
 
@@ -44,6 +45,20 @@ try:
 except AttributeError:
 	def _translate(context, text, disambig):
 		return QApplication.translate(context, text, disambig)
+
+_connections = dict()
+
+class Connection:
+	
+	def __init__(self, name, url, username, pw):
+		global _connections
+		self.name = name
+		self.url=url
+		self.username = username
+		self.password = pw
+		_connections[name] = self
+	
+	
 
 class Connector:
 
@@ -75,6 +90,11 @@ class Connector:
 		except:
 			print traceback.format_exc()
 		
+		self.connFile = self.plugin_dir+"/conns.dat"
+		with open(self.connFile, "a") as bla:
+			bla.close()
+		self.indialog = None
+		
 		locale = QSettings().value("locale/userLocale")[0:2]
 		localePath = os.path.join(self.plugin_dir, 'i18n', 'connector_{}.qm'.format(locale))
 
@@ -96,12 +116,17 @@ class Connector:
 		# connect the action to the run method
 		self.action.triggered.connect(self.run)
 		
-		self.dialog.connect(self.dialog.loadServices, SIGNAL("clicked()"), self.loadTreeView)
+		self.dialog.connect(self.dialog.connectButton, SIGNAL("clicked()"), self.loadTreeView)
 		self.dialog.connect(self.dialog.importLayers, SIGNAL("clicked()"), self.loadLayer)
 		self.dialog.connect(self.dialog.cancelButton, SIGNAL("clicked()"), self.dialog.close)
+		
+		self.dialog.connect(self.dialog.newButton, SIGNAL("clicked()"), self.newInput)
+		self.dialog.connect(self.dialog.deleteButton, SIGNAL("clicked()"), self.delConnection)
+		self.dialog.connect(self.dialog.editButton, SIGNAL("clicked()"), self.editCurrent)
+		
 
-		self.dialog.password.setEchoMode(QLineEdit.Password);
-
+		#self.dialog.password.setEchoMode(QLineEdit.Password);
+		self.loadConnections()
 		# Add toolbar button and menu item
 		self.iface.addToolBarIcon(self.action)
 		self.iface.addPluginToMenu(u"&ArcGIS REST API Connector", self.action)
@@ -118,15 +143,111 @@ class Connector:
 		# Run the dialog event loop
 		self.dialog.exec_()
 	
+	def editCurrent(self):
+		self.newInput(self.dialog.connections.currentText())
+		
+	
+	def newInput(self, name = ""):
+		global _connections
+		if self.indialog:
+			self.indialog.close()
+		
+		self.indialog = InputDialog()
+		
+		self.indialog.passwordBox.setEchoMode(QLineEdit.Password);
+		
+		if name:
+			try:
+				conn = _connections[name]
+				
+				self.indialog.nameBox.setText(conn.name)
+				self.indialog.serviceURLBox.setText(conn.url)
+				self.indialog.usernameBox.setText(conn.username)
+				self.indialog.passwordBox.setText(conn.password)
+			except Exception:
+				pass
+		
+		self.indialog.connect(self.indialog.OKButton,SIGNAL("clicked()"), self.newConnectionFromIndialog)
+		self.indialog.connect(self.indialog.cancelButton,SIGNAL("clicked()"), self.indialog.close)
+		
+		self.indialog.show()
+		self.indialog.exec_()
+	
+	
+	def newConnectionFromIndialog(self):
+		
+		name = self.indialog.nameBox.text()
+		url = self.indialog.serviceURLBox.text()
+		username = self.indialog.usernameBox.text()
+		password = self.indialog.passwordBox.text()
+		
+		Connection(name, url, username, password)
+		
+		self.writeConnections()
+		self.loadConnections()
+		
+		self.indialog.close()
+	
+	def writeConnections(self):
+		global _connections
+		
+		with open(self.connFile, "w") as data:
+			for connName in _connections.keys():
+				conn = _connections[connName]
+				if not conn:
+					continue
+				name = conn.name
+				url = conn.url
+				username = conn.username
+				password = conn.password
+				data.write(name+";"+url+";"+username+";"+password+"\n")
+	
+	def delConnection(self):
+		global _connections
+		try:
+			_connections[self.dialog.connections.currentText()] = None
+			self.writeConnections()
+			self.loadConnections()
+		except Exception:
+			pass
+	
+	def loadConnections(self):
+		global _connections
+		with open(self.connFile, "r") as data:
+			_connections = dict()
+			lines = data.readlines()
+			for line in lines:
+				line = line.replace("\n", "")
+				if line == "":
+					continue
+				print line
+				entries = line.split(";")
+				Connection(entries[0], entries[1], entries[2], entries[3])
+		print _connections
+		self.dialog.connections.clear()
+		for connNames in _connections.keys():
+			conn = _connections[connNames]
+			self.dialog.connections.addItem(conn.name)
+	
+	def setLoginData(self):
+		global _connections
+		try:
+			conn = _connections[self.dialog.connections.currentText()]
+			self.username = conn.username
+			self.password = conn.password
+		except Exception:
+			self.username = ""
+			self.password = ""
 	
 	def requestFor(self, url):
-		request = requests.get(url, auth=(self.dialog.username.text(), self.dialog.password.text()))
+
+		request = requests.get(url, auth=(self.username, self.password))
 		if "www-authenticate" in request.headers:
 			self.lastAuthMethod = "Basic"
 			if "NTLM, Negotiate" in request.headers["www-authenticate"]:
 				self.lastAuthMethod = "NTLM"
 				from requests_ntlm import HttpNtlmAuth
-				request = requests.get(url, auth=HttpNtlmAuth(self.dialog.username.text(), self.dialog.password.text()))
+				request = requests.get(url, auth=HttpNtlmAuth(self.username, self.password))
 		else:
 			self.lastAuthMethod = None
 			
@@ -161,19 +282,28 @@ class Connector:
 	def loadTreeViewFor(self, base, jsonContent):
 		baseItem = QTreeWidgetItem()
 		baseItem.setText(0, base)
+		self.dialog.treeView.clear()
 		self.dialog.treeView.addTopLevelItem(baseItem)
 		
 		self.populateFolder(base, jsonContent, baseItem)
 	
 	def loadTreeView(self):
-		serviceURL = self.dialog.serviceURL.text()
+		global _connections
+		try:
+			conn = _connections[self.dialog.connections.currentText()]
+			serviceURL = conn.url
+		except Exception:
+			return
+		
 		if not serviceURL:
 			return
 		if serviceURL == "":
 			return
 		
-		url = self.dialog.serviceURL.text()
+		url = serviceURL
 		urlJSON = url + "?f=json"
+		
+		self.setLoginData()
 		
 		try:
 			jsonText = self.requestFor(urlJSON)#urllib2.urlopen(request).read()
@@ -209,8 +339,8 @@ class Connector:
 		reqURL = item.toolTip(0)+"/tile/${z}/${y}/${x}"
 		
 		source = QUrl(reqURL)
-		source.setUserName(self.dialog.username.text())
-		source.setPassword(self.dialog.password.text())
+		source.setUserName(self.username)
+		source.setPassword(self.password)
 		
 		XMLWriter.url = source.toString(options=QUrl.None)
 		
@@ -269,8 +399,8 @@ class Connector:
 				reqURL = item.toolTip(0)+"/"+str(identi)+"/query?where=objectid+%3D+objectid&outfields=*&f=json"
 				
 				source = QUrl(reqURL)
-				source.setUserName(self.dialog.username.text())
-				source.setPassword(self.dialog.password.text())
+				source.setUserName(self.username)
+				source.setPassword(self.password)
 				
 				url = source.toString(options=QUrl.None)
 				

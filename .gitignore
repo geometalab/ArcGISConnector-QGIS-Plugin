@@ -6,3 +6,4 @@ resources_rc.pyc
 XMLWriter.pyc
 tmp/
 temp/
+conns.dat
