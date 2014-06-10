@@ -144,7 +144,8 @@ class Connector:
 		self.dialog.exec_()
 	
 	def editCurrent(self):
-		self.newInput(self.dialog.connections.currentText())
+		name = self.dialog.connections.currentText()
+		self.newInput(name)
 		
 	
 	def newInput(self, name = ""):
@@ -153,6 +154,7 @@ class Connector:
 			self.indialog.close()
 		
 		self.indialog = InputDialog()
+		self.indialog.setModal(True)
 		
 		self.indialog.passwordBox.setEchoMode(QLineEdit.Password);
 		
@@ -185,8 +187,22 @@ class Connector:
 		
 		self.writeConnections()
 		self.loadConnections()
-		
+		self.setConnectionTo(name)
 		self.indialog.close()
+	
+	def setConnectionTo(self, name):
+		global _connections
+		try:
+			conn = _connections[name]
+			oldIndex = self.dialog.connections.currentIndex()
+			count = self.dialog.connections.count()
+			for i in range(count):
+				self.dialog.connections.setCurrentIndex(i)
+				if self.dialog.connections.currentText() == name:
+					return
+			self.dialog.connections.setCurrentIndex(oldIndex)
+		except Exception:
+			return
 	
 	def writeConnections(self):
 		global _connections
@@ -220,10 +236,10 @@ class Connector:
 				line = line.replace("\n", "")
 				if line == "":
 					continue
-				print line
+				#print line
 				entries = line.split(";")
 				Connection(entries[0], entries[1], entries[2], entries[3])
-		print _connections
+		#print _connections
 		self.dialog.connections.clear()
 		for connNames in _connections.keys():
 			conn = _connections[connNames]
