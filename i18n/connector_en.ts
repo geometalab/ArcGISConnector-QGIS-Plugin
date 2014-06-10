@@ -20,20 +20,24 @@
         <translation>ArcGIS REST API Connector</translation>
     </message>
 	<message>
-        <source>REST Service URL:</source>
-        <translation>REST Service URL:</translation>
+        <source>Connections</source>
+        <translation>Connections</translation>
     </message>
 	<message>
-        <source>Password:</source>
-        <translation>Password:</translation>
+        <source>Connect</source>
+        <translation>Connect</translation>
     </message>
 	<message>
-        <source>Username:</source>
-        <translation>Username:</translation>
+        <source>New</source>
+        <translation>New</translation>
     </message>
 	<message>
-        <source>Load Services</source>
-        <translation>Load Services</translation>
+        <source>Edit</source>
+        <translation>Edit</translation>
+    </message>
+	<message>
+        <source>Delete</source>
+        <translation>Delete</translation>
     </message>
 	<message>
         <source>Services</source>
@@ -86,6 +90,36 @@
 	<message>
         <source>Select a Service</source>
         <translation>Select a Service</translation>
+    </message>
+</context>
+<context>
+    <name>Input</name>
+	<message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+	<message>
+        <source>Service URL:</source>
+        <translation>Service URL:</translation>
+    </message>
+	<message>
+        <source>Username</source>
+        <translation>Username:</translation>
+    </message>
+	<message>
+        <source>Password</source>
+        <translation>Password:</translation>
+    </message><message>
+        <source>Name</source>
+        <translation>Name:</translation>
+    </message>
+	<message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+	<message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
 </context>
 </TS>
