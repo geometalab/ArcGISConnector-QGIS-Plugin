@@ -1,9 +1,4 @@
-__init__.pyc
-connector.pyc
-connectordialog.pyc
-ui_connector.pyc
-resources_rc.pyc
-XMLWriter.pyc
+*.pyc
 tmp/
 temp/
 conns.dat
