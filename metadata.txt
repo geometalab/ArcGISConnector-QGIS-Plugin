@@ -26,7 +26,7 @@ email=tschmitz@hsr.ch
 # tags are comma separated with spaces allowed
 tags=
 
-homepage=http://giswiki.hsr.ch/QGIS-Materialien
+homepage=http://giswiki.hsr.ch/QGIS_ArcGIS_REST_API_Connector_Plugin
 tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
 repository=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin
 icon=icon.png
