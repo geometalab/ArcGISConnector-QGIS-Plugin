@@ -26,9 +26,9 @@ email=tschmitz@hsr.ch
 # tags are comma separated with spaces allowed
 tags=
 
-homepage=
-tracker=
-repository=
+homepage=http://giswiki.hsr.ch/QGIS-Materialien
+tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
+repository=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin
 icon=icon.png
 # experimental flag
 experimental=True
