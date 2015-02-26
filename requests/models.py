@@ -39,6 +39,7 @@ log = logging.getLogger(__name__)
 
 
 class RequestEncodingMixin(object):
+
     @property
     def path_url(self):
         """Build the path URL to use."""
@@ -110,7 +111,8 @@ class RequestEncodingMixin(object):
                 val = [val]
             for v in val:
                 if v is not None:
-                    # Don't call str() on bytestrings: in Py3 it all goes wrong.
+                    # Don't call str() on bytestrings: in Py3 it all goes
+                    # wrong.
                     if not isinstance(v, bytes):
                         v = str(v)
 
@@ -148,16 +150,19 @@ class RequestEncodingMixin(object):
 
 
 class RequestHooksMixin(object):
+
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
         if event not in self.hooks:
-            raise ValueError('Unsupported event specified, with event name "%s"' % (event))
+            raise ValueError(
+                'Unsupported event specified, with event name "%s"' % (event))
 
         if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, '__iter__'):
-            self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))
+            self.hooks[event].extend(
+                h for h in hook if isinstance(h, collections.Callable))
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
@@ -172,6 +177,7 @@ class RequestHooksMixin(object):
 
 
 class Request(RequestHooksMixin):
+
     """A user-created :class:`Request <Request>` object.
 
     Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
@@ -194,16 +200,17 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
 
     """
+
     def __init__(self,
-        method=None,
-        url=None,
-        headers=None,
-        files=None,
-        data=None,
-        params=None,
-        auth=None,
-        cookies=None,
-        hooks=None):
+                 method=None,
+                 url=None,
+                 headers=None,
+                 files=None,
+                 data=None,
+                 params=None,
+                 auth=None,
+                 cookies=None,
+                 hooks=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -246,6 +253,7 @@ class Request(RequestHooksMixin):
 
 
 class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
+
     """The fully mutable :class:`PreparedRequest <PreparedRequest>` object,
     containing the exact bytes that will be sent to the server.
 
@@ -377,14 +385,16 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+        url = requote_uri(
+            urlunparse([scheme, netloc, path, None, query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):
         """Prepares the given HTTP headers."""
 
         if headers:
-            self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
+            self.headers = CaseInsensitiveDict(
+                (to_native_string(name), value) for name, value in headers.items())
         else:
             self.headers = CaseInsensitiveDict()
 
@@ -415,7 +425,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             body = data
 
             if files:
-                raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
+                raise NotImplementedError(
+                    'Streamed bodies and files are mutually exclusive.')
 
             if length is not None:
                 self.headers['Content-Length'] = builtin_str(length)
@@ -494,6 +505,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
 
 class Response(object):
+
     """The :class:`Response <Response>` object, which contains a
     server's response to an HTTP request.
     """
@@ -676,7 +688,8 @@ class Response(object):
                 if self.status_code == 0:
                     self._content = None
                 else:
-                    self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
+                    self._content = bytes().join(
+                        self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
 
             except AttributeError:
                 self._content = None
@@ -764,10 +777,12 @@ class Response(object):
         http_error_msg = ''
 
         if 400 <= self.status_code < 500:
-            http_error_msg = '%s Client Error: %s' % (self.status_code, self.reason)
+            http_error_msg = '%s Client Error: %s' % (
+                self.status_code, self.reason)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = '%s Server Error: %s' % (self.status_code, self.reason)
+            http_error_msg = '%s Server Error: %s' % (
+                self.status_code, self.reason)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)

@@ -21,7 +21,8 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
+
 def classFactory(iface):
-	# load Connector class from file Connector
-	from connector import Connector
-	return Connector(iface)
+    # load Connector class from file Connector
+    from connector import Connector
+    return Connector(iface)

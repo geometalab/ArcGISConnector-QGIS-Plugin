@@ -44,6 +44,7 @@ MINIMUM_DATA_THRESHOLD = 3
 
 
 class CharDistributionAnalysis:
+
     def __init__(self):
         # Mapping table to get frequency order from char order (get from
         # GetOrder())
@@ -88,7 +89,7 @@ class CharDistributionAnalysis:
 
         if self._mTotalChars != self._mFreqChars:
             r = (self._mFreqChars / ((self._mTotalChars - self._mFreqChars)
-                 * self._mTypicalDistributionRatio))
+                                     * self._mTypicalDistributionRatio))
             if r < SURE_YES:
                 return r
 
@@ -109,6 +110,7 @@ class CharDistributionAnalysis:
 
 
 class EUCTWDistributionAnalysis(CharDistributionAnalysis):
+
     def __init__(self):
         CharDistributionAnalysis.__init__(self)
         self._mCharToFreqOrder = EUCTWCharToFreqOrder
@@ -128,6 +130,7 @@ class EUCTWDistributionAnalysis(CharDistributionAnalysis):
 
 
 class EUCKRDistributionAnalysis(CharDistributionAnalysis):
+
     def __init__(self):
         CharDistributionAnalysis.__init__(self)
         self._mCharToFreqOrder = EUCKRCharToFreqOrder
@@ -147,6 +150,7 @@ class EUCKRDistributionAnalysis(CharDistributionAnalysis):
 
 
 class GB2312DistributionAnalysis(CharDistributionAnalysis):
+
     def __init__(self):
         CharDistributionAnalysis.__init__(self)
         self._mCharToFreqOrder = GB2312CharToFreqOrder
@@ -166,6 +170,7 @@ class GB2312DistributionAnalysis(CharDistributionAnalysis):
 
 
 class Big5DistributionAnalysis(CharDistributionAnalysis):
+
     def __init__(self):
         CharDistributionAnalysis.__init__(self)
         self._mCharToFreqOrder = Big5CharToFreqOrder
@@ -188,6 +193,7 @@ class Big5DistributionAnalysis(CharDistributionAnalysis):
 
 
 class SJISDistributionAnalysis(CharDistributionAnalysis):
+
     def __init__(self):
         CharDistributionAnalysis.__init__(self)
         self._mCharToFreqOrder = JISCharToFreqOrder
@@ -213,6 +219,7 @@ class SJISDistributionAnalysis(CharDistributionAnalysis):
 
 
 class EUCJPDistributionAnalysis(CharDistributionAnalysis):
+
     def __init__(self):
         CharDistributionAnalysis.__init__(self)
         self._mCharToFreqOrder = JISCharToFreqOrder

@@ -289,7 +289,8 @@ def get_encodings_from_content(content):
     """
 
     charset_re = re.compile(r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
-    pragma_re = re.compile(r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
+    pragma_re = re.compile(
+        r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
     xml_re = re.compile(r'^<\?xml.*?encoding=["\']*(.+?)["\'>]')
 
     return (charset_re.findall(content) +
@@ -424,7 +425,8 @@ def address_in_network(ip, net):
     """
     ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
     netaddr, bits = net.split('/')
-    netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
+    netmask = struct.unpack(
+        '=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
     network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
     return (ipaddr & netmask) == (network & netmask)
 
@@ -525,7 +527,8 @@ def default_user_agent(name="python-requests"):
                                                 sys.pypy_version_info.minor,
                                                 sys.pypy_version_info.micro)
         if sys.pypy_version_info.releaselevel != 'final':
-            _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
+            _implementation_version = ''.join(
+                [_implementation_version, sys.pypy_version_info.releaselevel])
     elif _implementation == 'Jython':
         _implementation_version = platform.python_version()  # Complete Guess
     elif _implementation == 'IronPython':

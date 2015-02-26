@@ -17,13 +17,16 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class Ui_Connector(object):
+
     def setupUi(self, Connector):
         Connector.setObjectName(_fromUtf8("Connector"))
         Connector.resize(830, 401)
@@ -54,7 +57,8 @@ class Ui_Connector(object):
         self.deleteButton = QtGui.QPushButton(self.groupBox)
         self.deleteButton.setObjectName(_fromUtf8("deleteButton"))
         self.horizontalLayout_3.addWidget(self.deleteButton)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        spacerItem = QtGui.QSpacerItem(
+            40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.verticalLayout_2.addLayout(self.verticalLayout)
@@ -68,7 +72,8 @@ class Ui_Connector(object):
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        spacerItem1 = QtGui.QSpacerItem(
+            40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
         self.importLayers = QtGui.QPushButton(Connector)
         self.importLayers.setObjectName(_fromUtf8("importLayers"))
@@ -89,7 +94,8 @@ class Ui_Connector(object):
         self.newButton.setText(_translate("Connector", "New", None))
         self.editButton.setText(_translate("Connector", "Edit", None))
         self.deleteButton.setText(_translate("Connector", "Delete", None))
-        self.treeView.headerItem().setText(0, _translate("Connector", "Services", None))
-        self.importLayers.setText(_translate("Connector", "Import Layer", None))
+        self.treeView.headerItem().setText(
+            0, _translate("Connector", "Services", None))
+        self.importLayers.setText(
+            _translate("Connector", "Import Layer", None))
         self.cancelButton.setText(_translate("Connector", "Cancel", None))
-

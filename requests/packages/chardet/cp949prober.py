@@ -32,6 +32,7 @@ from .mbcssm import CP949SMModel
 
 
 class CP949Prober(MultiByteCharSetProber):
+
     def __init__(self):
         MultiByteCharSetProber.__init__(self)
         self._mCodingSM = CodingStateMachine(CP949SMModel)

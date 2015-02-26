@@ -33,6 +33,7 @@ DEFAULT_RETRIES = 0
 
 
 class BaseAdapter(object):
+
     """The Base Transport Adapter"""
 
     def __init__(self):
@@ -46,6 +47,7 @@ class BaseAdapter(object):
 
 
 class HTTPAdapter(BaseAdapter):
+
     """The built-in HTTP Adapter for urllib3.
 
     Provides a general-case interface for Requests sessions to contact HTTP and
@@ -91,7 +93,8 @@ class HTTPAdapter(BaseAdapter):
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
-        # because self.poolmanager uses a lambda function, which isn't pickleable.
+        # because self.poolmanager uses a lambda function, which isn't
+        # pickleable.
         self.proxy_manager = {}
         self.config = {}
 
@@ -140,7 +143,8 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = DEFAULT_CA_BUNDLE_PATH
 
             if not cert_loc:
-                raise Exception("Could not find a suitable SSL CA certificate bundle.")
+                raise Exception(
+                    "Could not find a suitable SSL CA certificate bundle.")
 
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
@@ -208,11 +212,11 @@ class HTTPAdapter(BaseAdapter):
 
             if not proxy in self.proxy_manager:
                 self.proxy_manager[proxy] = proxy_from_url(
-                                                proxy,
-                                                proxy_headers=proxy_headers,
-                                                num_pools=self._pool_connections,
-                                                maxsize=self._pool_maxsize,
-                                                block=self._pool_block)
+                    proxy,
+                    proxy_headers=proxy_headers,
+                    num_pools=self._pool_connections,
+                    maxsize=self._pool_maxsize,
+                    block=self._pool_block)
 
             conn = self.proxy_manager[proxy].connection_from_url(url)
         else:
@@ -308,7 +312,8 @@ class HTTPAdapter(BaseAdapter):
         url = self.request_url(request, proxies)
         self.add_headers(request)
 
-        chunked = not (request.body is None or 'Content-Length' in request.headers)
+        chunked = not (
+            request.body is None or 'Content-Length' in request.headers)
 
         if stream:
             timeout = TimeoutSauce(connect=timeout)

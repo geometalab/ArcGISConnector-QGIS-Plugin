@@ -30,6 +30,7 @@ from .compat import wrap_ord
 
 
 class CodingStateMachine:
+
     def __init__(self, sm):
         self._mModel = sm
         self._mCurrentBytePos = 0

@@ -34,6 +34,7 @@ from .compat import wrap_ord
 
 
 class EscCharSetProber(CharSetProber):
+
     def __init__(self):
         CharSetProber.__init__(self)
         self._mCodingSM = [

@@ -19,6 +19,7 @@ except ImportError:
 
 
 class MockRequest(object):
+
     """Wraps a `requests.Request` to mimic a `urllib2.Request`.
 
     The code in `cookielib.CookieJar` expects this interface in order to correctly
@@ -69,7 +70,8 @@ class MockRequest(object):
 
     def add_header(self, key, val):
         """cookielib has no legitimate use for this method; add it back if you find one."""
-        raise NotImplementedError("Cookie headers should be added with add_unredirected_header()")
+        raise NotImplementedError(
+            "Cookie headers should be added with add_unredirected_header()")
 
     def add_unredirected_header(self, name, value):
         self._new_headers[name] = value
@@ -91,6 +93,7 @@ class MockRequest(object):
 
 
 class MockResponse(object):
+
     """Wraps a `httplib.HTTPMessage` to mimic a `urllib.addinfourl`.
 
     ...what? Basically, expose the parsed HTTP headers from the server response
@@ -145,18 +148,21 @@ def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
         if cookie.name == name:
             if domain is None or domain == cookie.domain:
                 if path is None or path == cookie.path:
-                    clearables.append((cookie.domain, cookie.path, cookie.name))
+                    clearables.append(
+                        (cookie.domain, cookie.path, cookie.name))
 
     for domain, path, name in clearables:
         cookiejar.clear(domain, path, name)
 
 
 class CookieConflictError(RuntimeError):
+
     """There are two cookies that meet the criteria specified in the cookie jar.
     Use .get and .set and include domain and path args in order to be more specific."""
 
 
 class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
+
     """Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.
 
     This is the CookieJar we create by default for requests and sessions that
@@ -186,9 +192,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like set() that also supports optional domain and path args in
         order to resolve naming collisions from using one cookie jar over
         multiple domains."""
-        # support client code that unsets cookies by assignment of a None value:
+        # support client code that unsets cookies by assignment of a None
+        # value:
         if value is None:
-            remove_cookie_by_name(self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
+            remove_cookie_by_name(
+                self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
             return
 
         if isinstance(value, Morsel):
@@ -264,7 +272,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         dictionary = {}
         for cookie in iter(self):
             if (domain is None or cookie.domain == domain) and (path is None
-                                                or cookie.path == path):
+                                                                or cookie.path == path):
                 dictionary[cookie.name] = cookie.value
         return dictionary
 
@@ -322,9 +330,14 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
-                        if toReturn is not None:  # if there are multiple cookies that meet passed in criteria
-                            raise CookieConflictError('There are multiple cookies with name, %r' % (name))
-                        toReturn = cookie.value  # we will eventually return this as long as no cookie conflict
+                        # if there are multiple cookies that meet passed in
+                        # criteria
+                        if toReturn is not None:
+                            raise CookieConflictError(
+                                'There are multiple cookies with name, %r' % (name))
+                        # we will eventually return this as long as no cookie
+                        # conflict
+                        toReturn = cookie.value
 
         if toReturn:
             return toReturn
@@ -440,7 +453,7 @@ def merge_cookies(cookiejar, cookies):
     """
     if not isinstance(cookiejar, cookielib.CookieJar):
         raise ValueError('You can only merge into CookieJar')
-    
+
     if isinstance(cookies, dict):
         cookiejar = cookiejar_from_dict(
             cookies, cookiejar=cookiejar, overwrite=False)

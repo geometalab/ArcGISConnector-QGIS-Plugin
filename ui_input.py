@@ -17,13 +17,16 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class Ui_Input(object):
+
     def setupUi(self, Input):
         Input.setObjectName(_fromUtf8("Input"))
         Input.resize(427, 233)
@@ -33,7 +36,8 @@ class Ui_Input(object):
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
         self.serviceURLBox = QtGui.QLineEdit(Input)
         self.serviceURLBox.setObjectName(_fromUtf8("serviceURLBox"))
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.serviceURLBox)
+        self.formLayout.setWidget(
+            1, QtGui.QFormLayout.FieldRole, self.serviceURLBox)
         self.label = QtGui.QLabel(Input)
         self.label.setObjectName(_fromUtf8("label"))
         self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label)
@@ -45,10 +49,12 @@ class Ui_Input(object):
         self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_3)
         self.usernameBox = QtGui.QLineEdit(Input)
         self.usernameBox.setObjectName(_fromUtf8("usernameBox"))
-        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.usernameBox)
+        self.formLayout.setWidget(
+            2, QtGui.QFormLayout.FieldRole, self.usernameBox)
         self.passwordBox = QtGui.QLineEdit(Input)
         self.passwordBox.setObjectName(_fromUtf8("passwordBox"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.passwordBox)
+        self.formLayout.setWidget(
+            3, QtGui.QFormLayout.FieldRole, self.passwordBox)
         self.nameBox = QtGui.QLineEdit(Input)
         self.nameBox.setObjectName(_fromUtf8("nameBox"))
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.nameBox)
@@ -56,11 +62,13 @@ class Ui_Input(object):
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label_4)
         self.verticalLayout.addLayout(self.formLayout)
-        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        spacerItem = QtGui.QSpacerItem(
+            20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        spacerItem1 = QtGui.QSpacerItem(
+            40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
         self.cancelButton = QtGui.QPushButton(Input)
         self.cancelButton.setObjectName(_fromUtf8("cancelButton"))
@@ -81,4 +89,3 @@ class Ui_Input(object):
         self.label_4.setText(_translate("Input", "Name", None))
         self.cancelButton.setText(_translate("Input", "Cancel", None))
         self.OKButton.setText(_translate("Input", "OK", None))
-

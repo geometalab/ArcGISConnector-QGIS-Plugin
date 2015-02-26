@@ -14,7 +14,9 @@ from itertools import islice
 
 
 class IteratorProxy(object):
+
     """docstring for IteratorProxy"""
+
     def __init__(self, i):
         self.i = i
         # self.i = chain.from_iterable(i)
@@ -35,6 +37,7 @@ class IteratorProxy(object):
 
 
 class CaseInsensitiveDict(collections.MutableMapping):
+
     """
     A case-insensitive ``dict``-like object.
 
@@ -62,6 +65,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     behavior is undefined.
 
     """
+
     def __init__(self, data=None, **kwargs):
         self._store = dict()
         if data is None:
@@ -110,6 +114,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
 
 
 class LookupDict(dict):
+
     """Dictionary lookup object."""
 
     def __init__(self, name=None):
