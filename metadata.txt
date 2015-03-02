@@ -13,8 +13,8 @@ name=ArcGIS REST API Connector
 qgisMinimumVersion=2.0
 description=ArcGIS REST API Connector
 version=0.1.1
-author=tschmitz HSR
-email=tschmitz@hsr.ch
+author=geometalab
+email=geometalab@gmail.com
 
 # end of mandatory metadata
 
