@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/arcgiscon" >
+        <file>arcgis.png</file>
+    </qresource>
+</RCC>
