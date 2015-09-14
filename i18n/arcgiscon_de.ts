@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de_CH" sourcelanguage="">
+<!DOCTYPE TS><TS version="2.0" language="en" sourcelanguage="">
 <context>
     <name>ArcGisConController</name>
     <message>
         <location filename="arcgiscon_controller.py" line="123"/>
         <source>Worker thread:</source>
-        <translation type="unfinished"></translation>
+        <translation>Worker thread:</translation>
     </message>
 </context>
 <context>
@@ -13,42 +13,42 @@
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="14"/>
         <source>ArcGIS REST API Connector</source>
-        <translation type="unfinished"></translation>
+        <translation>ArcGIS REST API Connector</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="29"/>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinden</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="36"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="60"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Passwort</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="67"/>
         <source>Layer URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer URL</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="74"/>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="91"/>
         <source>Layer Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer-Name</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="101"/>
         <source>Only requests features overlapping the current view extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur sich mit aktueller Ansicht überschneidende Objekte abfragen</translation>
     </message>
 </context>
 <context>
@@ -56,17 +56,17 @@
     <message>
         <location filename="arcgiscon_service.py" line="234"/>
         <source>processing arcgis data...</source>
-        <translation type="unfinished"></translation>
+        <translation>In Bearbeitung...</translation>
     </message>
     <message>
         <location filename="arcgiscon_service.py" line="239"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <location filename="arcgiscon_service.py" line="153"/>
         <source>Layer has no features (with the current extent). Nothing has been updated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer hat keine Features (innerhalb aktuellem Ausschnitt). Nichts aktualisiert.</translation>
     </message>
 </context>
 <context>
@@ -74,17 +74,17 @@
     <message>
         <location filename="arcgiscon_plugin.py" line="88"/>
         <source>ArcGIS</source>
-        <translation type="unfinished"></translation>
+        <translation>ArcGIS REST API</translation>
     </message>
     <message>
         <location filename="arcgiscon_plugin.py" line="85"/>
         <source>refresh from source</source>
-        <translation type="unfinished"></translation>
+        <translation>Refresh von der Datenquelle</translation>
     </message>
     <message>
         <location filename="arcgiscon_plugin.py" line="86"/>
         <source>refresh from source with current extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Refresh von der Datenquelle im aktuellen Ausschnitt</translation>
     </message>
 </context>
 <context>
@@ -92,7 +92,7 @@
     <message>
         <location filename="arcgiscon_plugin.py" line="147"/>
         <source>arcgiscon</source>
-        <translation type="unfinished"></translation>
+        <translation>arcgiscon</translation>
     </message>
 </context>
 </TS>

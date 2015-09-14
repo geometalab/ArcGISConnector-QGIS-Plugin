@@ -5,7 +5,7 @@
     <message>
         <location filename="arcgiscon_controller.py" line="123"/>
         <source>Worker thread:</source>
-        <translation type="unfinished"></translation>
+        <translation>Worker thread:</translation>
     </message>
 </context>
 <context>
@@ -13,37 +13,37 @@
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="14"/>
         <source>ArcGIS REST API Connector</source>
-        <translation type="unfinished"></translation>
+        <translation>ArcGIS REST API Connector</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="29"/>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Connect</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="36"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="60"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Password</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="67"/>
         <source>Layer URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer URL</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="74"/>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Username</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="91"/>
         <source>Layer Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer Name</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="101"/>
@@ -56,17 +56,17 @@
     <message>
         <location filename="arcgiscon_service.py" line="234"/>
         <source>processing arcgis data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Processing...</translation>
     </message>
     <message>
         <location filename="arcgiscon_service.py" line="239"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <location filename="arcgiscon_service.py" line="153"/>
         <source>Layer has no features (with the current extent). Nothing has been updated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer has no features (within current extent). Nothing has been updated.</translation>
     </message>
 </context>
 <context>
@@ -74,17 +74,17 @@
     <message>
         <location filename="arcgiscon_plugin.py" line="88"/>
         <source>ArcGIS</source>
-        <translation type="unfinished"></translation>
+        <translation>ArcGIS REST API</translation>
     </message>
     <message>
         <location filename="arcgiscon_plugin.py" line="85"/>
         <source>refresh from source</source>
-        <translation type="unfinished"></translation>
+        <translation>Refresh from source</translation>
     </message>
     <message>
         <location filename="arcgiscon_plugin.py" line="86"/>
         <source>refresh from source with current extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Refresh from source with current extent</translation>
     </message>
 </context>
 <context>
@@ -92,7 +92,7 @@
     <message>
         <location filename="arcgiscon_plugin.py" line="147"/>
         <source>arcgiscon</source>
-        <translation type="unfinished"></translation>
+        <translation>arcgiscon</translation>
     </message>
 </context>
 </TS>
