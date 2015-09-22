@@ -139,12 +139,15 @@ class EsriUpdateService(QtCore.QObject):
                     if totalRecords > 0: 
                         query = EsriVectorQueryFactoy.createMetaInformationQuery()
                         metaJson = currentJob.connection.getJson(query)
-                        metaInfo = EsriLayerMetaInformation.createFromMetaJson(metaJson)
+                        metaInfo = EsriLayerMetaInformation.createFromMetaJson(metaJson)                        
                         maxRecordCount = metaInfo.maxRecordCount if 0 < metaInfo.maxRecordCount < self._maxRecordCount else self._maxRecordCount                                                                                                                                                       
                         pages = int(math.ceil(float(totalRecords) / float(maxRecordCount)))
                         self.progress.emit(10)
                         results = []
                         if pages == 1 or not metaInfo.supportsPagination:
+                            #if server doesn't support pagination and there are more features than we can retrieve within one single server call, warn user.                             
+                            if(totalRecords > float(maxRecordCount)):
+                                currentJob.onError.emit(QtCore.QCoreApplication.translate('ArcGisConService', "Not all features could be retrieved. Please adjust extent or use a filter."))                                                   
                             query = EsriVectorQueryFactoy.createFeaturesQuery(currentJob.connection.bbBox, currentJob.connection.customFiler)
                             results = [downloadSource((currentJob.connection, query, None))]
                         else:
@@ -264,6 +267,7 @@ class EsriUpdateService(QtCore.QObject):
     #progress is linked with progress bar and expects number 
     #between 0=0% and 100=100%
     progress = QtCore.pyqtSignal(float)
+    
     
 class FileSystemService:
     
