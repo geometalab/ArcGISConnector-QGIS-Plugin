@@ -34,45 +34,4 @@ class ArcGisConDialogNew(QtGui.QDialog, FORM_CLASS_NEW):
     def __init__(self, parent=None):        
         super(ArcGisConDialogNew, self).__init__(parent)        
         self.setupUi(self)        
-    
-#     def startWorker(self):            
-#         worker = TestWorker()
-#         thread = QtCore.QThread(self)
-#         worker.moveToThread(thread)
-#         worker.finished.connect(self.workerFinished)        
-#         thread.started.connect(worker.process)               
-#         self.thread = thread
-#         self.worker = worker
-#         thread.start()
         
-#             # create a new worker instance
-#             worker = TestWorker()
-#         
-#             # configure the QgsMessageBar
-#             messageBar = self.iface.messageBar().createMessage('Doing something time consuming...', )
-#             progressBar = QtGui.QProgressBar()
-#             progressBar.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-#             cancelButton = QtGui.QPushButton()
-#             cancelButton.setText('Cancel')
-#             cancelButton.clicked.connect(worker.kill)
-#             messageBar.layout().addWidget(progressBar)
-#             messageBar.layout().addWidget(cancelButton)
-#             self.iface.messageBar().pushWidget(messageBar, self.iface.messageBar().INFO)
-#             self.messageBar = messageBar
-#         
-#             # start the worker in a new thread
-#             thread = QtCore.QThread(self)            
-#             worker.moveToThread(thread)
-#             worker.finished.connect(self.workerFinished)
-#             worker.error.connect(self.workerError)
-#             worker.progress.connect(progressBar.setValue)
-#             thread.started.connect(worker.run)                        
-#             thread.start()
-#             self.thread = thread
-#             self.worker = worker
-#             
-#     def workerFinished(self):
-#         QtGui.QMessageBox.information(None, "DEBUG:", "finished")        
-#                         
-#     def workerError(self, e, message):
-#         QtGui.QMessageBox.information(None, "DEBUG:", "error")

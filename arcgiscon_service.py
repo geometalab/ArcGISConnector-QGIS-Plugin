@@ -22,7 +22,7 @@ A QGIS plugin
 
 from PyQt4 import QtCore, QtGui
 from qgis.gui import QgsMessageBar
-from arcgiscon_model import EsriVectorQueryFactoy
+from arcgiscon_model import EsriVectorQueryFactoy, EsriLayerMetaInformation
 from Queue import Queue
 
 import multiprocessing
@@ -38,9 +38,10 @@ import shutil
 def downloadSource(args):  
     ':type connection:Connection'
     ':type query:EsriQuery'
-    connection, resultQueue, query = args
-    resultJson = connection.getJson(query)      
-    resultQueue.put(1)
+    connection, query, resultQueue = args
+    resultJson = connection.getJson(query)
+    if resultQueue is not None:      
+        resultQueue.put(1)
     return resultJson  
 
 
@@ -135,14 +136,23 @@ class EsriUpdateService(QtCore.QObject):
                     self.state = EsriUpdateServiceState.Processing
                     currentJob = self.connectionPool.get()         
                     totalRecords = self._getTotalRecords(currentJob.connection)
-                    if totalRecords > 0:                                                                                                
-                        maxRecordCount = self._getMaxRecordCount(currentJob.connection)        
+                    if totalRecords > 0: 
+                        query = EsriVectorQueryFactoy.createMetaInformationQuery()
+                        metaJson = currentJob.connection.getJson(query)
+                        metaInfo = EsriLayerMetaInformation.createFromMetaJson(metaJson)
+                        maxRecordCount = metaInfo.maxRecordCount if 0 < metaInfo.maxRecordCount < self._maxRecordCount else self._maxRecordCount                                                                                                                                                       
                         pages = int(math.ceil(float(totalRecords) / float(maxRecordCount)))
-                        queries = []
-                        for page in range(0,pages):            
-                            queries.append(EsriVectorQueryFactoy.createFeaturesQuery(page, maxRecordCount, currentJob.connection.bbBox))
-                        self.progress.emit(10)                                                     
-                        results = self._downloadSources(queries, currentJob.connection)                        
+                        self.progress.emit(10)
+                        results = []
+                        if pages == 1 or not metaInfo.supportsPagination:
+                            query = EsriVectorQueryFactoy.createFeaturesQuery(currentJob.connection.bbBox, currentJob.connection.customFiler)
+                            results = [downloadSource((currentJob.connection, query, None))]
+                        else:
+                            queries = []
+                            for page in range(0,pages):            
+                                queries.append(EsriVectorQueryFactoy.createPagedFeaturesQuery(page, maxRecordCount, currentJob.connection.bbBox, currentJob.connection.customFiler))                                                                        
+                            results = self._downloadSources(queries, currentJob.connection)
+                        self.progress.emit(90)                        
                         if results is not None and not self._isKilled:
                             filePath = self._processSources(results, currentJob.connection)
                             currentJob.onSuccess.emit(filePath)
@@ -159,7 +169,6 @@ class EsriUpdateService(QtCore.QObject):
         self.finished.emit()
        
        
-            
 
     def _downloadSources(self, queries, connection):        
         #workaround for windows qis bug (http://gis.stackexchange.com/questions/35279/multiprocessing-error-in-qgis-with-python-on-windows)
@@ -170,12 +179,11 @@ class EsriUpdateService(QtCore.QObject):
         workerPool = multiprocessing.Pool(multiprocessing.cpu_count())
         manager = multiprocessing.Manager()
         resultQueue = manager.Queue()
-        args = [(connection, resultQueue, query) for query in queries]
+        args = [(connection, query, resultQueue) for query in queries]
         workingMap = workerPool.map_async(downloadSource,args)
         progressStepFactor = 80.0 / len(queries)                  
         while True:
-            if(workingMap.ready() or self._isKilled):
-                self.progress.emit(90)                
+            if(workingMap.ready() or self._isKilled):                                
                 break
             else:
                 size = resultQueue.qsize()                                                              
@@ -224,7 +232,7 @@ class EsriUpdateService(QtCore.QObject):
         
     def _getTotalRecords(self, connection):                                
         totalRecords = 0
-        query = EsriVectorQueryFactoy.createTotalFeatureCountQuery(connection.bbBox)            
+        query = EsriVectorQueryFactoy.createTotalFeatureCountQuery(connection.bbBox, connection.customFiler)            
         metaJson = connection.getJson(query)                    
         if u'count' in metaJson:                
             totalRecords = int(metaJson[u'count'])

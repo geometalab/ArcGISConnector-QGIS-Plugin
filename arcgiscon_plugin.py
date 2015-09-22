@@ -38,20 +38,17 @@ import os.path
 
 class ArcGisConnector:
 #     pydevd.settrace()       
-    _iface = None
+    _iface = None    
     _newLayerAction = None
+    _newLayerActionText = None    
     _arcGisRefreshLayerAction = None
-    _arcGisRefreshLayerWithNewExtentAction = None
-    
-    _pluginDir = None
-    
-    _projectId = None
-    
+    _arcGisRefreshLayerWithNewExtentAction = None    
+    _pluginDir = None    
+    _projectId = None    
     _esriVectorLayers = None
     _updateService = None
     _qSettings = None
     
-
     def __init__(self, iface):            
         self._iface = iface        
         self._pluginDir = os.path.dirname(__file__)
@@ -75,24 +72,31 @@ class ArcGisConnector:
         QgsMapLayerRegistry.instance().layerRemoved.connect(self._onLayerRemoved)
         QgsProject.instance().writeProject.connect(self._onProjectInitialWrite)
         QgsProject.instance().projectSaved.connect(self._onProjectSaved)
+        self._connectToRefreshAction()
                       
     def initGui(self):
-        arcGisConLayerIcon = QIcon(':/plugins/arcgiscon/arcgis.png')
-        arcGisConLayerText = QCoreApplication.translate('arcgiscon', 'arcgiscon')
-        self._newLayerAction = QAction(arcGisConLayerIcon, arcGisConLayerText, self._iface.mainWindow())
+        newLayerActionIcon = QIcon(':/plugins/arcgiscon/arcgis.png')
+        self._newLayerActionText = QCoreApplication.translate('arcgiscon', 'arcgiscon')
+        self._newLayerAction = QAction(newLayerActionIcon, self._newLayerActionText, self._iface.mainWindow())
         self._newLayerAction.triggered.connect(lambda: self._newController.createNewConnection(self._updateService, self._esriVectorLayers, [self._arcGisRefreshLayerAction,self._arcGisRefreshLayerWithNewExtentAction]))
-        try:
-            self._iface.layerToolBar().addAction(self._newLayerAction)
-        except:
-            self._iface.addToolBarIcon(self._newLayerAction)
-        self._iface.addPluginToVectorMenu(arcGisConLayerText, self._newLayerAction)
+        self._iface.addVectorToolBarIcon(self._newLayerAction)   
+        self._iface.addPluginToVectorMenu(self._newLayerActionText, self._newLayerAction)
         self._arcGisRefreshLayerAction = QAction( QCoreApplication.translate('ArcGisConnector', 'refresh from source'), self._iface.legendInterface() )
         self._arcGisRefreshLayerWithNewExtentAction = QAction( QCoreApplication.translate('ArcGisConnector', 'refresh from source with current extent'), self._iface.legendInterface() )
         self._iface.legendInterface().addLegendLayerAction(self._arcGisRefreshLayerAction, QCoreApplication.translate('ArcGisConnector', 'ArcGIS'), u"id1", QgsMapLayer.VectorLayer, False )
         self._iface.legendInterface().addLegendLayerAction(self._arcGisRefreshLayerWithNewExtentAction, QCoreApplication.translate('ArcGisConnector', 'ArcGIS'), u"id1", QgsMapLayer.VectorLayer, False )
         self._arcGisRefreshLayerAction.triggered.connect(self._refreshEsriLayer)
         self._arcGisRefreshLayerWithNewExtentAction.triggered.connect(lambda: self._refreshEsriLayer(True))
-        
+            
+    def _connectToRefreshAction(self):
+        for action in self._iface.mapNavToolToolBar().actions():
+            if action.objectName() == "mActionDraw":
+                action.triggered.connect(self._refreshAllEsriLayers)
+                
+    def _refreshAllEsriLayers(self): 
+        for layer in self._esriVectorLayers.values():
+            self._refreshController.updateLayer(self._updateService, layer)
+    
     def _refreshEsriLayer(self, withCurrentExtent=False):
         qgsLayers = self._iface.legendInterface().selectedLayers()
         for layer in qgsLayers:
@@ -151,7 +155,8 @@ class ArcGisConnector:
         self._iface.removePluginMenu(
             QCoreApplication.translate('arcgiscon', 'arcgiscon'),
             self._newLayerAction)
-        self._iface.removeToolBarIcon(self._newLayerAction)
+        self._iface.removePluginVectorMenu(self._newLayerActionText, self._newLayerAction)
+        self._iface.removeVectorToolBarIcon(self._newLayerAction)        
         self._iface.legendInterface().removeLegendLayerAction(self._arcGisRefreshLayerAction)
         
 

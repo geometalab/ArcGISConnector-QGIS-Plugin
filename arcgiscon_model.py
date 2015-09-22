@@ -25,30 +25,31 @@ from qgis.core import QgsVectorLayer
 import requests
 import requests_ntlm
 import hashlib
+import json
+
 
 class EsriVectorQueryFactoy:
-    
-    _queryAll = {"where":"objectid=objectid","outfields":"*","f":"json"}
     
     @staticmethod
     def createMetaInformationQuery():
         return EsriQuery(params={"f":"json"})                                 
     
     @staticmethod
-    def createTotalFeatureCountQuery(extent=None):  
-        query = EsriVectorQueryFactoy._queryAll.copy()
-        query.update({"returnCountOnly":"true"})   
-        if extent is not None:
-            query.update(EsriVectorQueryFactoy.createExtentParam(extent))                     
+    def createTotalFeatureCountQuery(extent=None, customFilter=None):  
+        query = EsriVectorQueryFactoy.createBaseQuery(extent, customFilter)
+        query.update({"returnCountOnly":"true"})                               
         return EsriQuery("/query",query)
     
     @staticmethod
-    def createFeaturesQuery(page, maxRecords, extent=None):
+    def createFeaturesQuery(extent=None, customFilter=None):
+        query = EsriVectorQueryFactoy.createBaseQuery(extent, customFilter)                
+        return EsriQuery("/query",query)
+    
+    @staticmethod
+    def createPagedFeaturesQuery(page, maxRecords, extent=None, customFilter=None):
         offset = page * maxRecords
-        query = EsriVectorQueryFactoy._queryAll.copy()
-        query.update({"resultOffset":offset,"resultRecordCount":maxRecords})
-        if extent is not None:            
-            query.update(EsriVectorQueryFactoy.createExtentParam(extent))
+        query = EsriVectorQueryFactoy.createBaseQuery(extent, customFilter)
+        query.update({"resultOffset":offset,"resultRecordCount":maxRecords})        
         return EsriQuery("/query",query) 
     
     @staticmethod
@@ -57,6 +58,27 @@ class EsriVectorQueryFactoy:
                 "geometryType":"esriGeometryEnvelope",
                 "geometry":extent
                 }
+        
+    @staticmethod    
+    def createBaseQuery(extent=None, customFilter = None):        
+        allObjects =  {"where":"objectid=objectid"}
+        allFields = {"outfields":"*"}
+        jsonFormat = {"f":"json"}                           
+        query = {}            
+        customFilterKeys = []
+        if not customFilter is None:
+            customFilterKeys = [k.lower() for k in customFilter.keys()]
+        if customFilter is None or not "where" in customFilterKeys:
+            query.update(allObjects)
+        if customFilter is None or not "outfields" in customFilterKeys:
+            query.update(allFields)
+        if customFilter is None or not "f" in customFilterKeys:
+            query.update(jsonFormat)
+        if customFilter is not None:
+            query.update(customFilter)
+        if extent is not None and (customFilter is None or "geometry" not in customFilter):
+            query.update(EsriVectorQueryFactoy.createExtentParam(extent))
+        return query
                 
 class EsriQuery:
     _urlAddon = None
@@ -71,16 +93,24 @@ class EsriQuery:
     def getParams(self):
         return self._params
     
-       
-    
+        
 class ConnectionAuthType:
     NoAuth, BasicAuthetication, NTLM = range(3)
+
+class EsriConnectionJSONValidatorException(Exception):
+    NotArcGisRest, WrongLayerType, NoLayer, NoPagination = range(4)  
+    
+    errorNr = None
+    
+    def __init__(self, message, errorNr):
+        super(EsriConnectionJSONValidatorException, self).__init__(message)
+        self.errorNr = errorNr
 
 
 class EsriConnectionJSONValidatorResponse:
     isValid = None
     exceptionMessage = None
-    
+                
     def __init__(self, isValid, exceptionMessage=None):
         self.isValid = isValid
         self.exceptionMessage = exceptionMessage
@@ -105,16 +135,32 @@ class EsriConnectionJSONValidatorLayer(EsriConnectionJSONValidator):
         try:
             responseJson = response.json()
         except ValueError:
-            return EsriConnectionJSONValidatorResponse.createNotValid("No ArcGIS Resource found.")        
-        if "type" in responseJson:
-            if responseJson["type"] != "Feature Layer":
-                return EsriConnectionJSONValidatorResponse.createNotValid("Layer must be of type Feature Layer. {} provided.".format(str(responseJson["type"])))
-        else:
-            return EsriConnectionJSONValidatorResponse.createNotValid("The URL points not to a layer.")                
-        if not ("advancedQueryCapabilities" in responseJson and "supportsPagination" in responseJson["advancedQueryCapabilities"] and responseJson["advancedQueryCapabilities"]["supportsPagination"]):
-                return EsriConnectionJSONValidatorResponse.createNotValid("Pagination not supported. ArcGIS Server must be at least of version 10.3. Current version: {}".format(str(responseJson["currentVersion"])))
-        return EsriConnectionJSONValidatorResponse.createValid()
+            raise EsriConnectionJSONValidatorException("No ArcGIS Resource found.", EsriConnectionJSONValidatorException.NotArcGisRest)
+        metaInfo = EsriLayerMetaInformation.createFromMetaJson(responseJson)
+        if metaInfo.layerType is None:
+            raise EsriConnectionJSONValidatorException("The URL points not to a layer.", EsriConnectionJSONValidatorException.NoLayer)
+        if metaInfo.layerType != "Feature Layer":
+            raise EsriConnectionJSONValidatorException("Layer must be of type Feature Layer. {} provided.".format(metaInfo.layerType), EsriConnectionJSONValidatorException.WrongLayerType)
+        
             
+class EsriLayerMetaInformation:
+    maxRecordCount = 0
+    supportsPagination = False
+    layerType = None
+    
+    @staticmethod
+    def createFromMetaJson(metaJson):
+        ':rtype EsriLayerMetaInformation'
+        metaInfo = EsriLayerMetaInformation()
+        if u'maxRecordCount' in metaJson:
+            metaInfo.maxRecordCount = int(metaJson[u'maxRecordCount'])
+        if "advancedQueryCapabilities" in metaJson and "supportsPagination" in metaJson["advancedQueryCapabilities"] and metaJson["advancedQueryCapabilities"]["supportsPagination"]:
+            metaInfo.supportsPagination = metaJson["advancedQueryCapabilities"]["supportsPagination"]
+        if "type" in metaJson:
+            metaInfo.layerType = metaJson["type"]
+        return metaInfo
+        
+        
 class Connection:    
     basicUrl = None    
     name = None    
@@ -122,6 +168,7 @@ class Connection:
     username = None
     password = None
     bbBox = None
+    customFiler = None
     
     def __init__(self, basicUrl, name, username=None, password=None, authMethod=ConnectionAuthType.NoAuth):
         self.basicUrl = basicUrl
@@ -131,37 +178,12 @@ class Connection:
         self.authMethod = authMethod
         
     @staticmethod
-    def createAndConfigureConnection(basicUrl, name, username=None, password=None, authMethod=ConnectionAuthType.NoAuth):
+    def createAndConfigureConnection(basicUrl, name, username=None, password=None, authMethod=ConnectionAuthType.NoAuth, validator=EsriConnectionJSONValidatorLayer()):
         connection = Connection(basicUrl, name, username, password, authMethod)
-        connection.configure()
+        connection.configure(validator)
         return connection
-                        
-    def validate(self, validator=None):
-        try:
-            query = EsriVectorQueryFactoy.createMetaInformationQuery()
-            response = self.connect(query)
-            response.raise_for_status()
-            if validator is not None:
-                response = validator.validate(response)
-                if not response.isValid:
-                    raise Exception(response.exceptionMessage)                
-        except Exception:
-            raise
-        
-    def updateBoundingBoxByExtent(self, extent):
-        self.bbBox = extent
-    
-    def updateBoundingBoxByRectangle(self, qgsRectangle, spacialReferenceWkt):
-        xmin=qgsRectangle.xMinimum()
-        ymin=qgsRectangle.yMinimum()
-        xmax=qgsRectangle.xMaximum()
-        ymax=qgsRectangle.yMaximum()
-        self.bbBox = "xmin: {}, ymin: {}, xmax: {}, ymax: {}, spatialReference: {}".format(xmin,ymin,xmax,ymax, spacialReferenceWkt)
-        
-    def clearBoundingBox(self):
-        self.bbBox = None        
-                   
-    def configure(self):
+       
+    def configure(self, validator):
         try:
             query = EsriVectorQueryFactoy.createMetaInformationQuery()                                     
             response = self.connect(query)
@@ -170,24 +192,22 @@ class Connection:
                     if "NTLM, Negotiate" in response.headers["www-authenticate"]:
                         self.authMethod = ConnectionAuthType.NTLM
                     else:
-                        self.authMethod = ConnectionAuthType.BasicAuthetication            
-        except requests.exceptions.RequestException:
+                        self.authMethod = ConnectionAuthType.BasicAuthetication          
+        except (requests.exceptions.RequestException, ValueError):
             #fail silently
-            pass
-        
-    def getJson(self, query):
-        return self.connect(query).json()
-                
-    def createSourceFileName(self):        
-        vectorSrcName = hashlib.sha224(self.getConnectionIdentifier()).hexdigest()
-        return vectorSrcName + ".json"
+            pass   
+                             
+    def validate(self, validator):
+        try:
+            query = EsriVectorQueryFactoy.createMetaInformationQuery()
+            response = self.connect(query)
+            response.raise_for_status()
+            validator.validate(response)              
+            if self.name == "":
+                self._updateLayerNameFromServerResponse(response)              
+        except Exception:
+            raise
     
-    def getConnectionIdentifier(self):
-        identifier = self.basicUrl
-        if self.bbBox is not None:
-            identifier+=self.bbBox
-        return identifier
-                
     def connect(self, query):       
         auth = None     
         try: 
@@ -207,7 +227,47 @@ class Connection:
                 
         return request
     
+    def needsAuth(self):
+        return self.authMethod != ConnectionAuthType.NoAuth
     
+    def updateBoundingBoxByExtent(self, extent):
+        self.bbBox = extent
+    
+    def updateBoundingBoxByRectangle(self, qgsRectangle, spacialReferenceWkt):
+        xmin=qgsRectangle.xMinimum()
+        ymin=qgsRectangle.yMinimum()
+        xmax=qgsRectangle.xMaximum()
+        ymax=qgsRectangle.yMaximum()
+        self.bbBox = "xmin: {}, ymin: {}, xmax: {}, ymax: {}, spatialReference: {}".format(xmin,ymin,xmax,ymax, spacialReferenceWkt)
+        
+    def clearBoundingBox(self):
+        self.bbBox = None        
+    
+    def getJson(self, query):
+        return self.connect(query).json()
+    
+                    
+    def createSourceFileName(self):        
+        vectorSrcName = hashlib.sha224(self.getConnectionIdentifier()).hexdigest()
+        return vectorSrcName + ".json"
+    
+    def getConnectionIdentifier(self):
+        identifier = self.basicUrl
+        if self.bbBox is not None:
+            identifier+=self.bbBox
+        if self.customFiler is not None:
+            identifier+=json.dumps(self.customFiler)
+        return identifier
+                                            
+    def _updateLayerNameFromServerResponse(self, response):
+        try:
+            responseJson = response.json()
+            if "name" in responseJson:
+                self.name = responseJson["name"]
+        except ValueError:
+            raise
+
+      
 class EsriVectorLayer:
     qgsVectorLayer = None        
     connection = None
@@ -232,6 +292,9 @@ class EsriVectorLayer:
         extent = str(qgsLayer.customProperty("arcgiscon_connection_extent"))
         if extent != "":
             esriLayer.connection.updateBoundingBoxByExtent(extent)
+        customFilter = str(qgsLayer.customProperty("arcgiscon_connection_customfilter"))
+        if customFilter != "":
+            esriLayer.connection.customFiler = json.loads(customFilter)
         return esriLayer
                                                 
     def createQgsVectorLayer(self, srcPath):
@@ -245,5 +308,7 @@ class EsriVectorLayer:
         self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_username", self.connection.username)
         self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_password", self.connection.password)
         extent = self.connection.bbBox if self.connection.bbBox is not None else ""
-        self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_extent", extent)        
+        self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_extent", extent)
+        customFilter = json.dumps(self.connection.customFiler) if self.connection.customFiler is not None else ""
+        self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_customfilter", customFilter)         
                       
