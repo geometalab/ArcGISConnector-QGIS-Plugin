@@ -25,7 +25,7 @@
 
 #Add iso code for any locales you want to support here (space separated)
 # default is no locales
-LOCALES = arcgiscon_en arcgiscon_de
+LOCALES = arcgiscon_en arcgiscon_de arcgiscon_fr
 
 # If locales are enabled, set the name of the lrelease binary on your system. If
 # you have trouble compiling the translations, you may have to specify the full path to
