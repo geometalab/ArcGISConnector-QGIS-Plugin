@@ -59,7 +59,7 @@
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="55"/>
         <source>Filter</source>
-        <translation></translation>
+        <translation>Filter</translation>
     </message>
     <message>
         <location filename="arcgiscon_dialog_new.ui" line="138"/>
