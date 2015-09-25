@@ -42,7 +42,7 @@ SOURCES = \
     arcgiscon_service.py \
     arcgiscon_ui.py
     
-PLUGINNAME = arcgiscon
+PLUGINNAME = connector
 
 PY_FILES = \
     __init__.py \

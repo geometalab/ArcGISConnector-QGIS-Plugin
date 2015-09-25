@@ -29,7 +29,7 @@ homepage=http://giswiki.hsr.ch/QGIS_ArcGIS_REST_API_Connector_Plugin
 tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
 repository=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin
 category=Plugins
-icon=icon.png
+icon=arcgis.png
 # experimental flag
 experimental=True
 
