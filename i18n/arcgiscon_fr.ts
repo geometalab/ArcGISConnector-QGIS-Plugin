@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="">
 <context>
     <name>ArcGisConController</name>
     <message>
@@ -22,12 +21,12 @@
         <translation>ArcGIS REST API Connector</translation>
     </message>
     <message>
-        <location filename="arcgiscon_dialog_new.ui" line="154"/>
+        <location filename="arcgiscon_dialog_new.ui" line="144"/>
         <source>Connect</source>
         <translation>Connecter</translation>
     </message>
     <message>
-        <location filename="arcgiscon_dialog_new.ui" line="147"/>
+        <location filename="arcgiscon_dialog_new.ui" line="137"/>
         <source>Cancel</source>
         <translation>Stopper</translation>
     </message>
@@ -62,7 +61,7 @@
         <translation>Filtre</translation>
     </message>
     <message>
-        <location filename="arcgiscon_dialog_new.ui" line="138"/>
+        <location filename="arcgiscon_dialog_new.ui" line="128"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://giswiki.hsr.ch/ArcGIS_REST_API_Connector_QGIS_Plugin#Help&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2b84d3;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation></translation>
     </message>
@@ -77,12 +76,12 @@
     <message>
         <location filename="arcgiscon_service.py" line="250"/>
         <source>Cancel</source>
-        <translation type="unfinished">Stopper</translation>
+        <translation>Stopper</translation>
     </message>
     <message>
         <location filename="arcgiscon_service.py" line="166"/>
         <source>Layer has no features (with the current extent). Nothing has been updated.</source>
-        <translation type="unfinished">La couche ne contient pas d&apos;objets (à l&apos;intérieur de l&apos;étendue actuelle/du filtre). Pas d&apos;actualisation.</translation>
+        <translation>La couche ne contient pas d&apos;objets (à l&apos;intérieur de l&apos;étendue actuelle/du filtre). Pas d&apos;actualisation.</translation>
     </message>
     <message>
         <location filename="arcgiscon_service.py" line="150"/>
@@ -93,17 +92,17 @@
 <context>
     <name>ArcGisConnector</name>
     <message>
-        <location filename="arcgiscon_plugin.py" line="87"/>
+        <location filename="arcgiscon_plugin.py" line="90"/>
         <source>ArcGIS</source>
         <translation>ArcGIS REST API</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="84"/>
+        <location filename="arcgiscon_plugin.py" line="87"/>
         <source>refresh from source</source>
         <translation>Actualiser la source de données</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="85"/>
+        <location filename="arcgiscon_plugin.py" line="88"/>
         <source>refresh from source with current extent</source>
         <translation>Actualiser la source de données pour l&apos;étendue actuelle</translation>
     </message>
@@ -111,7 +110,7 @@
 <context>
     <name>arcgiscon</name>
     <message>
-        <location filename="arcgiscon_plugin.py" line="155"/>
+        <location filename="arcgiscon_plugin.py" line="158"/>
         <source>arcgiscon</source>
         <translation>arcgiscon</translation>
     </message>

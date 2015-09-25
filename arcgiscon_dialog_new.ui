@@ -82,7 +82,7 @@
       <item row="16" column="0" colspan="2">
        <widget class="QCheckBox" name="extentOnly">
         <property name="text">
-         <string>Interroger uniquement les objets à l'intérieur de l'étendue actuelle</string>
+         <string>Only requests features overlapping the current view extent</string>
         </property>
        </widget>
       </item>
@@ -151,9 +151,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>verticalLayoutWidget</zorder>
-  <zorder>helpLabel</zorder>
-  <zorder>helpLabel</zorder>
  </widget>
  <tabstops>
   <tabstop>layerUrlInput</tabstop>
