@@ -79,7 +79,10 @@ class ArcGisConnector:
         self._newLayerActionText = QCoreApplication.translate('arcgiscon', 'arcgiscon')
         self._newLayerAction = QAction(newLayerActionIcon, self._newLayerActionText, self._iface.mainWindow())
         self._newLayerAction.triggered.connect(lambda: self._newController.createNewConnection(self._updateService, self._esriVectorLayers, [self._arcGisRefreshLayerAction,self._arcGisRefreshLayerWithNewExtentAction]))
-        self._iface.addVectorToolBarIcon(self._newLayerAction)   
+        try:
+            self._iface.layerToolBar().addAction(self._newLayerAction)
+        except:
+            self._iface.addToolBarIcon(self._newLayerAction)   
         self._iface.addPluginToVectorMenu(self._newLayerActionText, self._newLayerAction)
         self._arcGisRefreshLayerAction = QAction( QCoreApplication.translate('ArcGisConnector', 'refresh from source'), self._iface.legendInterface() )
         self._arcGisRefreshLayerWithNewExtentAction = QAction( QCoreApplication.translate('ArcGisConnector', 'refresh from source with current extent'), self._iface.legendInterface() )
@@ -156,7 +159,7 @@ class ArcGisConnector:
             QCoreApplication.translate('arcgiscon', 'arcgiscon'),
             self._newLayerAction)
         self._iface.removePluginVectorMenu(self._newLayerActionText, self._newLayerAction)
-        self._iface.removeVectorToolBarIcon(self._newLayerAction)        
+        self._iface.removeToolBarIcon(self._newLayerAction)        
         self._iface.legendInterface().removeLegendLayerAction(self._arcGisRefreshLayerAction)
         
 
