@@ -23,7 +23,7 @@ email=geometalab@gmail.com
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=
+tags=arcgis, feature, service, layer, vector, webservice, provider
 
 homepage=http://giswiki.hsr.ch/QGIS_ArcGIS_REST_API_Connector_Plugin
 tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
