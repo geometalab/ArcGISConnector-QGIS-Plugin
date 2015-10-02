@@ -11,7 +11,7 @@ name=ArcGIS REST API Connector
 qgisMinimumVersion=2.0
 description=ArcGIS REST API Connector
 about=This plugin allows to connect to ArcGIS REST API Services. Currently only feature layers (from Feature Services or Map Services) are supported. 
-version=0.3.1
+version=0.3.2
 author=geometalab
 email=geometalab@gmail.com
 
