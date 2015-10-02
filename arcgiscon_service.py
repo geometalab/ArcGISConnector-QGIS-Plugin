@@ -185,8 +185,8 @@ class EsriUpdateService(QtCore.QObject):
         args = [(connection, query, resultQueue) for query in queries]
         workingMap = workerPool.map_async(downloadSource,args)
         progressStepFactor = 80.0 / len(queries)                  
-        while True:
-            if(workingMap.ready() or self._isKilled):                                
+        while not self._isKilled:
+            if(workingMap.ready()):                                
                 break
             else:
                 size = resultQueue.qsize()                                                              
