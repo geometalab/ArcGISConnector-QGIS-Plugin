@@ -43,8 +43,7 @@ class ArcGisConnector:
     _newLayerActionText = None    
     _arcGisRefreshLayerAction = None
     _arcGisRefreshLayerWithNewExtentAction = None    
-    _pluginDir = None    
-    _projectId = None    
+    _pluginDir = None
     _esriVectorLayers = None
     _updateService = None
     _qSettings = None
@@ -109,28 +108,28 @@ class ArcGisConnector:
                 else:
                     self._refreshController.updateLayer(self._updateService, self._esriVectorLayers[layer.id()])
                 
-    def _onProjectLoad(self):
-        projectId = self._qSettings.value("arcgiscon/projectid","-1") 
-        if  projectId is not "-1":
-            self._projectId = projectId
-            self._updateService.updateProjectId(projectId)            
+    def _onProjectLoad(self): 
+        projectId = str(QgsProject.instance().readEntry("arcgiscon","projectid","-1")[0])
+        if  projectId != "-1":                                
             self._reconnectEsriLayers()
-            FileSystemService().removeDanglingFilesFromProjectDir([layer.connection.createSourceFileName() for layer in self._esriVectorLayers.values()], projectId)            
+            FileSystemService().removeDanglingFilesFromProjectDir([layer.connection.createSourceFileName() for layer in self._esriVectorLayers.values()], projectId)
+            self._updateService.updateProjectId(projectId)            
         
     def _onProjectInitialWrite(self):
-        if self._projectId is None:
+        projectId = str(QgsProject.instance().readEntry("arcgiscon","projectid","-1")[0])
+        if projectId == "-1" and self._esriVectorLayers:
             projectId = uuid4().hex
             for esriLayer in self._esriVectorLayers.values():                
                 newSrcPath = FileSystemService().moveFileFromTmpToProjectDir(esriLayer.connection.createSourceFileName(), projectId)
                 if newSrcPath is not None:
-                    esriLayer.qgsVectorLayer.setDataSource(newSrcPath, esriLayer.qgsVectorLayer.name(),"ogr")
-            self._updateService.updateProjectId(projectId)
-            self._qSettings.setValue("arcgiscon/projectid",projectId)
-            self._projectId = projectId            
+                    esriLayer.qgsVectorLayer.setDataSource(newSrcPath, esriLayer.qgsVectorLayer.name(),"ogr")            
+            QgsProject.instance().writeEntry("arcgiscon","projectid",projectId)
+            self._updateService.updateProjectId(projectId)                    
     
     def _onProjectSaved(self):
-        if self._projectId is not None:
-            FileSystemService().removeDanglingFilesFromProjectDir([layer.connection.createSourceFileName() for layer in self._esriVectorLayers.values()], self._projectId)
+        projectId = str(QgsProject.instance().readEntry("arcgiscon","projectid","-1")[0])
+        if projectId != "-1":
+            FileSystemService().removeDanglingFilesFromProjectDir([layer.connection.createSourceFileName() for layer in self._esriVectorLayers.values()], projectId)
                         
     def _reconnectEsriLayers(self):
         layers = QgsMapLayerRegistry.instance().mapLayers()                

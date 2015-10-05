@@ -28,7 +28,6 @@ from Queue import Queue
 import multiprocessing
 import math
 import json
-import hashlib
 import os.path
 import time
 import sys
@@ -288,15 +287,15 @@ class FileSystemService:
         self._storeJson(jsonFile, filePath)
         return filePath
       
-    def removeDanglingFilesFromProjectDir(self, existingFileNames, projectId):
-        pass
-#         projectPath = os.path.join(self.arcGisJsonSrc, projectId)
-#         filePaths = [os.path.join(projectPath, fileName) for fileName in existingFileNames]
-#         for existingName in os.listdir(projectPath):
-#             existingPath = os.path.join(self.arcGisJsonSrc, projectId, existingName)
-#             if existingPath not in filePaths:
-#                 if os.path.isfile(existingPath):
-#                     os.unlink(existingPath)  
+    def removeDanglingFilesFromProjectDir(self, existingFileNames, projectId):        
+        projectPath = os.path.join(self.arcGisJsonSrc, projectId)
+        self._createFolderIfNotExists(projectPath)
+        filePaths = [os.path.join(projectPath, fileName) for fileName in existingFileNames]
+        for existingName in os.listdir(projectPath):
+            existingPath = os.path.join(self.arcGisJsonSrc, projectId, existingName)
+            if existingPath not in filePaths:
+                if os.path.isfile(existingPath):
+                    os.unlink(existingPath)  
     
     def moveFileFromTmpToProjectDir(self, fileName, projectId):               
         pathToReturn = None 
@@ -367,5 +366,3 @@ class NotificationHandler:
         if not cls._iface:
             raise RuntimeError("iface is not configured")
         
-
-          

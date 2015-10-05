@@ -203,8 +203,7 @@ class Connection:
             response = self.connect(query)
             response.raise_for_status()
             validator.validate(response)              
-            if self.name == "":
-                self._updateLayerNameFromServerResponse(response)              
+            self._updateLayerNameFromServerResponse(response)              
         except Exception:
             raise
     

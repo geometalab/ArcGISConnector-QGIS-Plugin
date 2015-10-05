@@ -129,6 +129,7 @@ class ArcGisConNewController(QObject):
 			self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapRenderer().destinationCrs().toWkt())
 		if not self._customFilterJson is None: 
 			self._connection.customFiler = self._customFilterJson
+		self._connection.name = self._newDialog.layerNameInput.text()
 		updateWorker = EsriUpdateWorker.create(self._connection, lambda srcPath: self.onSuccess(srcPath, self._connection), self.onError)							
 		self._updateService.update(updateWorker)
 		self._newDialog.accept()		
