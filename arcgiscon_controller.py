@@ -126,7 +126,7 @@ class ArcGisConNewController(QObject):
 		self._checkCustomFilter()
 		if self._newDialog.extentOnly.isChecked():
 			mapCanvas = self._iface.mapCanvas()
-			self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapRenderer().destinationCrs().toWkt())
+			self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().toWkt())
 		if not self._customFilterJson is None: 
 			self._connection.customFiler = self._customFilterJson
 		self._connection.name = self._newDialog.layerNameInput.text()

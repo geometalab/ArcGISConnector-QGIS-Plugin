@@ -161,4 +161,3 @@ class ArcGisConnector:
         self._iface.removeToolBarIcon(self._newLayerAction)        
         self._iface.legendInterface().removeLegendLayerAction(self._arcGisRefreshLayerAction)
         
-

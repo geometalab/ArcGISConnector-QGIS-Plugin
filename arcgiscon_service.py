@@ -234,8 +234,8 @@ class EsriUpdateService(QtCore.QObject):
         
     def _getTotalRecords(self, connection):                                
         totalRecords = 0
-        query = EsriVectorQueryFactoy.createTotalFeatureCountQuery(connection.bbBox, connection.customFiler)            
-        metaJson = connection.getJson(query)                    
+        query = EsriVectorQueryFactoy.createTotalFeatureCountQuery(connection.bbBox, connection.customFiler)                
+        metaJson = connection.getJson(query)                        
         if u'count' in metaJson:                
             totalRecords = int(metaJson[u'count'])
         return totalRecords
