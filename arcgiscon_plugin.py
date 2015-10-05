@@ -75,7 +75,7 @@ class ArcGisConnector:
                       
     def initGui(self):
         newLayerActionIcon = QIcon(':/plugins/arcgiscon/arcgis.png')
-        self._newLayerActionText = QCoreApplication.translate('arcgiscon', 'arcgiscon')
+        self._newLayerActionText = QCoreApplication.translate('ArcGisConnector', 'arcgiscon')
         self._newLayerAction = QAction(newLayerActionIcon, self._newLayerActionText, self._iface.mainWindow())
         self._newLayerAction.triggered.connect(lambda: self._newController.createNewConnection(self._updateService, self._esriVectorLayers, [self._arcGisRefreshLayerAction,self._arcGisRefreshLayerWithNewExtentAction]))
         try:
@@ -155,7 +155,7 @@ class ArcGisConnector:
     def unload(self):
         FileSystemService().clearAllFilesFromTmpFolder()
         self._iface.removePluginMenu(
-            QCoreApplication.translate('arcgiscon', 'arcgiscon'),
+            QCoreApplication.translate('ArcGisConnector', 'arcgiscon'),
             self._newLayerAction)
         self._iface.removePluginVectorMenu(self._newLayerActionText, self._newLayerAction)
         self._iface.removeToolBarIcon(self._newLayerAction)        
