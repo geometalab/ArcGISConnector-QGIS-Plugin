@@ -50,15 +50,18 @@ class EsriUpdateWorker(QtCore.QObject):
         self.connection = connection        
     
     @staticmethod
-    def create(connection, onSuccess=None, onError=None):
+    def create(connection, onSuccess=None, onWarning=None, onError=None):
         worker = EsriUpdateWorker(connection)
         if onSuccess is not None:
             worker.onSuccess.connect(onSuccess)
+        if onWarning is not None:
+            worker.onWarning.connect(onWarning)
         if onError is not None:
             worker.onError.connect(onError)
         return worker
                 
     onSuccess = QtCore.pyqtSignal(basestring)
+    onWarning = QtCore.pyqtSignal(basestring)
     onError = QtCore.pyqtSignal(basestring)
 
 class EsriUpdateServiceState:
@@ -146,7 +149,7 @@ class EsriUpdateService(QtCore.QObject):
                         if pages == 1 or not metaInfo.supportsPagination:
                             #if server doesn't support pagination and there are more features than we can retrieve within one single server call, warn user.                             
                             if(totalRecords > float(maxRecordCount)):
-                                currentJob.onError.emit(QtCore.QCoreApplication.translate('ArcGisConService', "Not all features could be retrieved. Please adjust extent or use a filter."))                                                   
+                                currentJob.onWarning.emit(QtCore.QCoreApplication.translate('ArcGisConService', "Not all features could be retrieved. Please adjust extent or use a filter."))                                                   
                             query = EsriVectorQueryFactoy.createFeaturesQuery(currentJob.connection.bbBox, currentJob.connection.customFiler)
                             results = [downloadSource((currentJob.connection, query, None))]
                         else:

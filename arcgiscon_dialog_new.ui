@@ -10,6 +10,12 @@
     <height>284</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>474</width>
+    <height>0</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>ArcGIS REST API Connector</string>
   </property>
@@ -103,6 +109,9 @@
     </item>
     <item>
      <widget class="QLabel" name="connectionErrorLabel">
+      <property name="styleSheet">
+       <string notr="true">color : red;</string>
+      </property>
       <property name="text">
        <string/>
       </property>

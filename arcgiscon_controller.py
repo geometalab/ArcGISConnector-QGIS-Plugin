@@ -130,7 +130,7 @@ class ArcGisConNewController(QObject):
 		if not self._customFilterJson is None: 
 			self._connection.customFiler = self._customFilterJson
 		self._connection.name = self._newDialog.layerNameInput.text()
-		updateWorker = EsriUpdateWorker.create(self._connection, lambda srcPath: self.onSuccess(srcPath, self._connection), self.onError)							
+		updateWorker = EsriUpdateWorker.create(self._connection, onSuccess=lambda srcPath: self.onSuccess(srcPath, self._connection), onWarning=lambda warningMsg: self.onWarning(self._connection, warningMsg), onError=lambda errorMsg: self.onError(self._connection, errorMsg))							
 		self._updateService.update(updateWorker)
 		self._newDialog.accept()		
 		
@@ -140,9 +140,12 @@ class ArcGisConNewController(QObject):
 			self._iface.legendInterface().addLegendLayerActionForLayer(action, esriLayer.qgsVectorLayer)
 		QgsMapLayerRegistry.instance().addMapLayer(esriLayer.qgsVectorLayer)
 		self._esriVectorLayers[esriLayer.qgsVectorLayer.id()]=esriLayer
+		
+	def onWarning(self, connection, warningMessage):
+		NotificationHandler.pushWarning('['+connection.name+'] :', warningMessage, 5)
 			
-	def onError(self, errorMessage):
-		NotificationHandler.pushError(QCoreApplication.translate('ArcGisConController', 'Worker thread:'), errorMessage)
+	def onError(self, connection, errorMessage):
+		NotificationHandler.pushError('['+connection.name+'] :', errorMessage, 5)
 		
 	def _resetInputValues(self):
 		self._newDialog.layerUrlInput.setText("")
@@ -167,7 +170,7 @@ class ArcGisConRefreshController(QObject):
 
 	def updateLayer(self, updateService, esriLayer):
 		if not esriLayer.connection is None:
-			worker = EsriUpdateWorker.create(esriLayer.connection, None, self.onError)			
+			worker = EsriUpdateWorker.create(esriLayer.connection, onSuccess=None, onWarning=lambda warningMsg: self.onWarning(esriLayer.connection, warningMsg), onError=lambda errorMsg: self.onError(esriLayer.connection, errorMsg))			
 			updateService.update(worker)
 			
 	def updateLayerWithNewExtent(self, updateService, esriLayer):
@@ -175,13 +178,16 @@ class ArcGisConRefreshController(QObject):
 			mapCanvas = self._iface.mapCanvas()
 			esriLayer.connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapRenderer().destinationCrs().toWkt())
 			esriLayer.updateProperties()			
-			worker = EsriUpdateWorker.create(esriLayer.connection, lambda newSrcPath: self.onUpdateLayerWithNewExtentSuccess(newSrcPath, esriLayer), self.onError)			
+			worker = EsriUpdateWorker.create(esriLayer.connection, onSuccess=lambda newSrcPath: self.onUpdateLayerWithNewExtentSuccess(newSrcPath, esriLayer), onWarning=lambda warningMsg: self.onWarning(esriLayer.connection, warningMsg), onError=lambda errorMsg: self.onError(esriLayer.connection, errorMsg))			
 			updateService.update(worker)
 			
 	def onUpdateLayerWithNewExtentSuccess(self, newSrcPath, esriLayer):
 		esriLayer.qgsVectorLayer.setDataSource(newSrcPath, esriLayer.qgsVectorLayer.name(),"ogr")
+		
+	def onWarning(self, connection, warningMessage):
+		NotificationHandler.pushWarning('['+connection.name+'] :', warningMessage, 5)		
 																	
-	def onError(self, errorMessage):
-		NotificationHandler.pushError(QCoreApplication.translate('ArcGisConController', 'Worker thread:'), errorMessage, 10)		
+	def onError(self, connection, errorMessage):
+		NotificationHandler.pushError('['+connection.name+'] :', errorMessage, 5)		
 		
 		

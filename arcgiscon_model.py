@@ -247,11 +247,7 @@ class Connection:
                             "wkt":str(spacialReferenceWkt)
                         }
                       }
-#         xmin = qgsRectangle.xMinimum()
-#         ymin = qgsRectangle.yMinimum()
-#         xmax = qgsRectangle.xMaximum()
-#         ymax = qgsRectangle.yMaximum()
-#         self.bbBox = "xmin: {}, ymin: {}, xmax: {}, ymax: {}, spatialReference: \{\}{}".format(xmin, ymin, xmax, ymax, spacialReferenceWkt)
+
         
     def clearBoundingBox(self):
         self.bbBox = None        
@@ -279,6 +275,16 @@ class Connection:
                 self.name = responseJson["name"]
         except ValueError:
             raise
+        
+    def createMetaDataAbstract(self):
+        meta = ""
+        if self.bbBox is not None:
+            meta += "bbox: "+json.dumps(self.bbBox)+"\n\n"
+        if self.customFiler is not None:
+            meta += "filter:"+json.dumps(self.customFiler)
+        return meta
+        
+        
 
       
 class EsriVectorLayer:
@@ -325,5 +331,8 @@ class EsriVectorLayer:
 #         extent = self.connection.bbBox if self.connection.bbBox is not None else ""
         self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_extent", extent)
         customFilter = json.dumps(self.connection.customFiler) if self.connection.customFiler is not None else ""
-        self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_customfilter", customFilter)         
+        self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_customfilter", customFilter) 
+        self.qgsVectorLayer.setDataUrl(self.connection.basicUrl)
+        self.qgsVectorLayer.setAbstract(self.connection.createMetaDataAbstract())
+                
                       
