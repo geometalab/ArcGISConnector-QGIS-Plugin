@@ -125,8 +125,8 @@ class ArcGisConNewController(QObject):
 	def _requestLayerForConnection(self):
 		self._checkCustomFilter()
 		if self._newDialog.extentOnly.isChecked():
-			mapCanvas = self._iface.mapCanvas()
-			self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().toWkt())
+			mapCanvas = self._iface.mapCanvas()			
+			self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().srsid())
 		if not self._customFilterJson is None: 
 			self._connection.customFiler = self._customFilterJson
 		self._connection.name = self._newDialog.layerNameInput.text()
@@ -176,7 +176,7 @@ class ArcGisConRefreshController(QObject):
 	def updateLayerWithNewExtent(self, updateService, esriLayer):
 		if not esriLayer.connection is None:
 			mapCanvas = self._iface.mapCanvas()
-			esriLayer.connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapRenderer().destinationCrs().toWkt())
+			esriLayer.connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().srsid())
 			esriLayer.updateProperties()			
 			worker = EsriUpdateWorker.create(esriLayer.connection, onSuccess=lambda newSrcPath: self.onUpdateLayerWithNewExtentSuccess(newSrcPath, esriLayer), onWarning=lambda warningMsg: self.onWarning(esriLayer.connection, warningMsg), onError=lambda errorMsg: self.onError(esriLayer.connection, errorMsg))			
 			updateService.update(worker)

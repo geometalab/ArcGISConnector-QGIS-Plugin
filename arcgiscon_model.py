@@ -215,7 +215,7 @@ class Connection:
                 auth = self.authMethod
                 if self.authMethod == ConnectionAuthType.NTLM:                    
                     auth = requests_ntlm.HttpNtlmAuth(self.username, self.password)              
-            request = requests.get(self.basicUrl + query.getUrlAddon(), params=query.getParams(), auth=auth, timeout=10)
+            request = requests.post(self.basicUrl + query.getUrlAddon(), params=query.getParams(), auth=auth, timeout=10)            
         except requests.ConnectionError:
             raise
         except requests.HTTPError:
@@ -233,7 +233,7 @@ class Connection:
     def updateBoundingBoxByExtent(self, extent):
         self.bbBox = extent
     
-    def updateBoundingBoxByRectangle(self, qgsRectangle, spacialReferenceWkt):
+    def updateBoundingBoxByRectangle(self, qgsRectangle, spacialReferenceWkid):
         self.bbBox = {
                         "bbox":
                         {
@@ -244,7 +244,7 @@ class Connection:
                         },
                         "spatialReference": 
                         {
-                            "wkt":str(spacialReferenceWkt)
+                            "wkid":spacialReferenceWkid
                         }
                       }
 
@@ -284,9 +284,7 @@ class Connection:
             meta += "filter:"+json.dumps(self.customFiler)
         return meta
         
-        
-
-      
+              
 class EsriVectorLayer:
     qgsVectorLayer = None        
     connection = None
@@ -311,7 +309,6 @@ class EsriVectorLayer:
         extent = str(qgsLayer.customProperty("arcgiscon_connection_extent"))
         if extent != "":
             esriLayer.connection.updateBoundingBoxByExtent(json.loads(extent))
-#             esriLayer.connection.updateBoundingBoxByExtent(extent)
         customFilter = str(qgsLayer.customProperty("arcgiscon_connection_customfilter"))
         if customFilter != "":
             esriLayer.connection.customFiler = json.loads(customFilter)
