@@ -7,6 +7,11 @@
         <source>Invalid filter detected.</source>
         <translation>Le filtre choisi n&apos;est pas valide.</translation>
     </message>
+    <message>
+        <location filename="arcgiscon_controller.py" line="189"/>
+        <source>CRS [{}] not supported</source>
+        <translation type="unfinished">CRS [{}] not supported.</translation>
+    </message>
 </context>
 <context>
     <name>ArcGisConDialogNew</name>
@@ -81,30 +86,30 @@
     <message>
         <location filename="arcgiscon_service.py" line="152"/>
         <source>Not all features could be retrieved. Please adjust extent or use a filter.</source>
-        <translation>Nicht alle Features konntent abgerufen werden. Bitte definieren Sie einen Ausschnitt/Filter.</translation>
+        <translation type="unfinished">Not all features could be retrieved. Please adjust extent or use a filter.</translation>
     </message>
 </context>
 <context>
     <name>ArcGisConnector</name>
     <message>
-        <location filename="arcgiscon_plugin.py" line="89"/>
+        <location filename="arcgiscon_plugin.py" line="90"/>
         <source>ArcGIS</source>
         <translation>ArcGIS REST API</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="86"/>
+        <location filename="arcgiscon_plugin.py" line="87"/>
         <source>refresh from source</source>
         <translation>Actualiser la source de données</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="87"/>
+        <location filename="arcgiscon_plugin.py" line="88"/>
         <source>refresh from source with current extent</source>
         <translation>Actualiser la source de données pour l&apos;étendue actuelle</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="157"/>
+        <location filename="arcgiscon_plugin.py" line="158"/>
         <source>arcgiscon</source>
-        <translation>arcgiscon</translation>
+        <translation type="unfinished">Add ArcGIS feature service layer</translation>
     </message>
 </context>
 </TS>

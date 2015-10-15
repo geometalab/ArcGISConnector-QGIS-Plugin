@@ -7,6 +7,11 @@
         <source>Invalid filter detected.</source>
         <translation>Der eingegebene Filter ist ungültig.</translation>
     </message>
+    <message>
+        <location filename="arcgiscon_controller.py" line="189"/>
+        <source>CRS [{}] not supported</source>
+        <translation>Die angegebene CRS [{}] wird nicht unterstützt.</translation>
+    </message>
 </context>
 <context>
     <name>ArcGisConDialogNew</name>
@@ -87,22 +92,22 @@
 <context>
     <name>ArcGisConnector</name>
     <message>
-        <location filename="arcgiscon_plugin.py" line="89"/>
+        <location filename="arcgiscon_plugin.py" line="90"/>
         <source>ArcGIS</source>
         <translation>ArcGIS REST API</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="86"/>
+        <location filename="arcgiscon_plugin.py" line="87"/>
         <source>refresh from source</source>
         <translation>Refresh von der Datenquelle</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="87"/>
+        <location filename="arcgiscon_plugin.py" line="88"/>
         <source>refresh from source with current extent</source>
         <translation>Refresh von der Datenquelle im aktuellen Ausschnitt</translation>
     </message>
     <message>
-        <location filename="arcgiscon_plugin.py" line="157"/>
+        <location filename="arcgiscon_plugin.py" line="158"/>
         <source>arcgiscon</source>
         <translation>ArcGIS Feature Service-Layer hinzufügen</translation>
     </message>
