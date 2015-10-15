@@ -27,7 +27,6 @@ import requests_ntlm
 import hashlib
 import json
 
-
 class EsriVectorQueryFactoy:
     
     @staticmethod
@@ -162,13 +161,22 @@ class EsriLayerMetaInformation:
         return metaInfo
         
 
+class InvalidCrsIdException(Exception):
+        
+    crs = None
+        
+    def __init__(self, crs):
+        super(InvalidCrsIdException, self).__init__("CRS not supported")
+        self.crs = crs
+        
+
 class Connection:    
     basicUrl = None    
     name = None    
     authMethod = None
     username = None
     password = None
-    bbBox = None
+    bbBox = None    
     customFiler = None
     
     def __init__(self, basicUrl, name, username=None, password=None, authMethod=ConnectionAuthType.NoAuth):
@@ -224,7 +232,7 @@ class Connection:
             raise
         except requests.TooManyRedirects:
             raise        
-                
+#         QgsMessageLog.logMessage(request.request.url)
         return request
     
     def needsAuth(self):
@@ -233,7 +241,8 @@ class Connection:
     def updateBoundingBoxByExtent(self, extent):
         self.bbBox = extent
     
-    def updateBoundingBoxByRectangle(self, qgsRectangle, spacialReferenceWkid):
+    def updateBoundingBoxByRectangle(self, qgsRectangle, authId):          
+        spacialReferenceWkid = self.extractWkidFromAuthId(authId)
         self.bbBox = {
                         "bbox":
                         {
@@ -254,8 +263,7 @@ class Connection:
     
     def getJson(self, query):
         return self.connect(query).json()
-    
-                    
+                                    
     def createSourceFileName(self):        
         vectorSrcName = hashlib.sha224(self.getConnectionIdentifier()).hexdigest()
         return vectorSrcName + ".json"
@@ -283,6 +291,12 @@ class Connection:
         if self.customFiler is not None:
             meta += "filter:"+json.dumps(self.customFiler)
         return meta
+    
+    def extractWkidFromAuthId(self, authId):
+        try:
+            return int(authId.split(":")[1])
+        except ValueError:
+            raise InvalidCrsIdException(authId)
         
               
 class EsriVectorLayer:
@@ -293,7 +307,7 @@ class EsriVectorLayer:
     def create(connection, srcPath):
         esriLayer = EsriVectorLayer()
         esriLayer.connection = connection
-        esriLayer.createQgsVectorLayer(srcPath)
+        esriLayer.updateQgsVectorLayer(srcPath)
         return esriLayer
     
     @staticmethod
@@ -314,10 +328,9 @@ class EsriVectorLayer:
             esriLayer.connection.customFiler = json.loads(customFilter)
         return esriLayer
                                                 
-    def createQgsVectorLayer(self, srcPath):
-        self.qgsVectorLayer = QgsVectorLayer(srcPath, self.connection.name, "ogr")
-        self.updateProperties()
-        return self.qgsVectorLayer  
+    def updateQgsVectorLayer(self, srcPath):
+        self.qgsVectorLayer = QgsVectorLayer(srcPath, self.connection.name, "ogr")        
+        self.updateProperties()          
     
     def updateProperties(self):
         self.qgsVectorLayer.setCustomProperty("arcgiscon_connection_url", self.connection.basicUrl)            

@@ -22,7 +22,7 @@ email                : geometalab@gmail.com
 from qgis.core import QgsMapLayerRegistry
 from PyQt4.QtCore import QObject, QCoreApplication
 from arcgiscon_ui import ArcGisConDialogNew
-from arcgiscon_model import Connection, EsriVectorLayer, EsriConnectionJSONValidatorLayer
+from arcgiscon_model import Connection, EsriVectorLayer, EsriConnectionJSONValidatorLayer, InvalidCrsIdException
 from arcgiscon_service import NotificationHandler, EsriUpdateWorker
 from Queue import Queue
 
@@ -125,8 +125,12 @@ class ArcGisConNewController(QObject):
 	def _requestLayerForConnection(self):
 		self._checkCustomFilter()
 		if self._newDialog.extentOnly.isChecked():
-			mapCanvas = self._iface.mapCanvas()			
-			self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().srsid())
+			mapCanvas = self._iface.mapCanvas()
+			try:			
+				self._connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().authid())
+			except InvalidCrsIdException as e:
+				self._newDialog.connectionErrorLabel.setText(QCoreApplication.translate('ArcGisConController', "CRS [{}] not supported").format(e.crs))				
+				return
 		if not self._customFilterJson is None: 
 			self._connection.customFiler = self._customFilterJson
 		self._connection.name = self._newDialog.layerNameInput.text()
@@ -174,12 +178,15 @@ class ArcGisConRefreshController(QObject):
 			updateService.update(worker)
 			
 	def updateLayerWithNewExtent(self, updateService, esriLayer):
-		if not esriLayer.connection is None:
+		if not esriLayer.connection is None:			
 			mapCanvas = self._iface.mapCanvas()
-			esriLayer.connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().srsid())
-			esriLayer.updateProperties()			
-			worker = EsriUpdateWorker.create(esriLayer.connection, onSuccess=lambda newSrcPath: self.onUpdateLayerWithNewExtentSuccess(newSrcPath, esriLayer), onWarning=lambda warningMsg: self.onWarning(esriLayer.connection, warningMsg), onError=lambda errorMsg: self.onError(esriLayer.connection, errorMsg))			
-			updateService.update(worker)
+			try:
+				esriLayer.connection.updateBoundingBoxByRectangle(mapCanvas.extent(), mapCanvas.mapSettings().destinationCrs().authid())
+				esriLayer.updateProperties()			
+				worker = EsriUpdateWorker.create(esriLayer.connection, onSuccess=lambda newSrcPath: self.onUpdateLayerWithNewExtentSuccess(newSrcPath, esriLayer), onWarning=lambda warningMsg: self.onWarning(esriLayer.connection, warningMsg), onError=lambda errorMsg: self.onError(esriLayer.connection, errorMsg))			
+				updateService.update(worker)
+			except InvalidCrsIdException as e:
+				self.onError(esriLayer.connection, QCoreApplication.translate('ArcGisConController', "CRS [{}] not supported").format(e.crs))			
 			
 	def onUpdateLayerWithNewExtentSuccess(self, newSrcPath, esriLayer):
 		esriLayer.qgsVectorLayer.setDataSource(newSrcPath, esriLayer.qgsVectorLayer.name(),"ogr")
@@ -187,7 +194,8 @@ class ArcGisConRefreshController(QObject):
 	def onWarning(self, connection, warningMessage):
 		NotificationHandler.pushWarning('['+connection.name+'] :', warningMessage, 5)		
 																	
-	def onError(self, connection, errorMessage):
-		NotificationHandler.pushError('['+connection.name+'] :', errorMessage, 5)		
+	def onError(self, connection, errorMessage):		
+		NotificationHandler.pushError('['+connection.name+'] :', errorMessage, 5)	
+		
 		
 		
