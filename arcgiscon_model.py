@@ -161,10 +161,8 @@ class EsriLayerMetaInformation:
         return metaInfo
         
 
-class InvalidCrsIdException(Exception):
-        
-    crs = None
-        
+class InvalidCrsIdException(Exception):    
+    crs = None        
     def __init__(self, crs):
         super(InvalidCrsIdException, self).__init__("CRS not supported")
         self.crs = crs
@@ -232,7 +230,6 @@ class Connection:
             raise
         except requests.TooManyRedirects:
             raise        
-#         QgsMessageLog.logMessage(request.request.url)
         return request
     
     def needsAuth(self):
