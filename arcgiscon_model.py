@@ -61,7 +61,7 @@ class EsriVectorQueryFactoy:
         
     @staticmethod    
     def createBaseQuery(extent=None, customFilter=None):        
-        allObjects = {"where":"objectid=objectid"}
+        allObjects = {"where":"1=1"}
         allFields = {"outfields":"*"}
         jsonFormat = {"f":"json"}                           
         query = {}            
@@ -221,7 +221,7 @@ class Connection:
                 auth = self.authMethod
                 if self.authMethod == ConnectionAuthType.NTLM:                    
                     auth = requests_ntlm.HttpNtlmAuth(self.username, self.password)              
-            request = requests.post(self.basicUrl + query.getUrlAddon(), params=query.getParams(), auth=auth, timeout=10)            
+            request = requests.post(self.basicUrl + query.getUrlAddon(), params=query.getParams(), auth=auth, timeout=60)            
         except requests.ConnectionError:
             raise
         except requests.HTTPError:
