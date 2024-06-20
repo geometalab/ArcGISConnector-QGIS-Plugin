@@ -12,11 +12,12 @@ description=This plugin allows to connect to ArcGIS REST API Services. Currently
 
 about=A QGIS-Plugin which reads "Feature Services" - aka vector-based, WFS-alike services - from ArcGIS Online or ArcGIS Server. ArcGIS REST API includes also "Map Services" - aka raster-based WMS/WMTS-alike services - are currently NOT supported (and won't be supported in near future).
 
-homepage=http://giswiki.hsr.ch/QGIS_ArcGIS_REST_API_Connector_Plugin
-tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
 repository=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin
 
 # Optional items:
+
+homepage=http://giswiki.hsr.ch/QGIS_ArcGIS_REST_API_Connector_Plugin
+tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
 
 tags=vector, feature, layer, service, webservice, provider, arcgis
 icon=icon.png
