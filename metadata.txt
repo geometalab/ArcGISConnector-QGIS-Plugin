@@ -1,38 +1,29 @@
-# This file contains metadata for your plugin. Beginning
-# with version 1.8 this is the preferred way to supply information about a
-# plugin. The current method of embedding metadata in __init__.py will
-# be supported until version 2.0
-
-# This file should be included when you package your plugin.
-
 # Mandatory items:
-
 
 [general]
 name=ArcGIS REST API Connector
 qgisMinimumVersion=2.0
-description=ArcGIS REST API Connector
-version=0.1.1
-author=geometalab
-email=geometalab@gmail.com
+version=0.3.5
 
-# end of mandatory metadata
+author=Stefan Keller, Dennis Ligtenberg
+email=geometalab@ost.ch
 
-# Optional items:
+description=This plugin allows to connect to ArcGIS REST API Services. Currently only feature layers (from Feature Services or Map Services) are supported.
 
-# Uncomment the following line and add your changelog entries:
-# changelog=
-
-# tags are comma separated with spaces allowed
-tags=
+about=A QGIS-Plugin which reads "Feature Services" - aka vector-based, WFS-alike services - from ArcGIS Online or ArcGIS Server. ArcGIS REST API includes also "Map Services" - aka raster-based WMS/WMTS-alike services - are currently NOT supported (and won't be supported in near future).
 
 homepage=http://giswiki.hsr.ch/QGIS_ArcGIS_REST_API_Connector_Plugin
 tracker=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin/issues
 repository=https://github.com/geometalab/ArcGISConnector-QGIS-Plugin
-icon=icon.png
-# experimental flag
-experimental=True
 
-# deprecated flag (applies to the whole plugin, not just a single version
+# Optional items:
+
+tags=vector, feature, layer, service, webservice, provider, arcgis
+icon=icon.png
+category=Web
+experimental=True
+server=False
 deprecated=False
 
+changelog=
+    0.3.5 2024-06-20: Update metadata
