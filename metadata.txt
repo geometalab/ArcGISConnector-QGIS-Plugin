@@ -24,7 +24,7 @@ icon=icon.png
 category=Web
 experimental=True
 server=False
-deprecated=False
+deprecated=True
 
 changelog=
     0.3.5 2024-06-20: Update metadata
